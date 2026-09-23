@@ -78,7 +78,7 @@ prepare() {
   cd "$_pkgsrc"
   mkdir -p src/userplugins
   cp -a "$srcdir/vencord-plugins/." src/userplugins/
-  rm -rf src/userplugins/.git
+  rm -rf src/userplugins/.git src/userplugins/.github
   sed -i 's/bun-linux-x64-baseline/bun-linux-x64/g' scripts/build/compileArrpc.mts
 }
 
