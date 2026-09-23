@@ -43,18 +43,22 @@ jobs:
           sudo -u builder git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-      - name: Install paru-bin
+      - name: Install AUR helper
         run: |
           sudo -u builder bash -c '
             set -euo pipefail
             cd /tmp
-            rm -rf paru-bin
-            git clone https://aur.archlinux.org/paru-bin.git
-            cd paru-bin
+            rm -rf yay-bin
+            git clone https://aur.archlinux.org/yay-bin.git
+            cd yay-bin
             makepkg -si --noconfirm
             cd /tmp
-            rm -rf paru-bin
+            rm -rf yay-bin
           '
+          # Alias paru to yay for pacman 7 / libalpm 16 compatibility
+          if ! command -v paru >/dev/null 2>&1; then
+            ln -sf /usr/bin/yay /usr/local/bin/paru
+          fi
 
       - name: Auto-update package versions
         run: |

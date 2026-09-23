@@ -54,16 +54,24 @@ for pkgdir in "$REPO_ROOT"/*/; do
         echo "Attempting build with paru..."
         if paru -B . --noconfirm --chroot 2>/dev/null; then
             BUILD_SUCCESS=1
-        elif paru -B . --noconfirm; then
+        elif paru -B . --noconfirm 2>/dev/null; then
             BUILD_SUCCESS=1
         fi
-    elif command -v makepkg >/dev/null 2>&1; then
+    fi
+
+    if [ "$BUILD_SUCCESS" -ne 1 ] && command -v yay >/dev/null 2>&1; then
+        echo "Attempting build with yay..."
+        if yay -B . --noconfirm 2>/dev/null; then
+            BUILD_SUCCESS=1
+        fi
+    fi
+
+    if [ "$BUILD_SUCCESS" -ne 1 ] && command -v makepkg >/dev/null 2>&1; then
         echo "Attempting build with makepkg..."
         if makepkg -s --noconfirm; then
             BUILD_SUCCESS=1
         fi
     fi
-
     if [ "$BUILD_SUCCESS" -ne 1 ]; then
         echo "Failed to build $pkgname" >&2
         exit 1
