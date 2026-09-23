@@ -8,7 +8,6 @@ on:
     - cron: '0 3 * * 0' # Weekly on Sunday at 03:00 UTC
   workflow_dispatch:
   repository_dispatch:
-    types: [plugins_update, repo_update]
 
 permissions:
   contents: write
