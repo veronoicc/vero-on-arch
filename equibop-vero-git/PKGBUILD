@@ -10,7 +10,7 @@
 _pkgname="equibop"
 pkgname="$_pkgname-vero-git"
 pkgdesc="A custom Discord desktop app with Equicord pre-installed (git version)"
-pkgver=3.3.1.r0.g83b88c5.p924de2b
+pkgver=3.3.1.r0.g83b88c5.pdeea145
 pkgrel=1
 url="https://github.com/Equicord/Equibop"
 license=('GPL-3.0-only')
