@@ -72,9 +72,12 @@ if [ "$UPDATED" -eq 1 ]; then
     if [ "${1:-}" = "--commit" ]; then
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add */PKGBUILD */.nvchecker.toml */nvchecker.toml */oldver.json
-        git commit -m "chore(repo): auto-update package versions" || true
-        git push origin main || true
+        git add -u
+        git add '*/oldver.json' '*/newver.json' 2>/dev/null || true
+        if ! git diff --cached --quiet; then
+            git commit -m "chore(repo): auto-update package versions"
+            git push origin main
+        fi
     fi
 else
     echo "No package updates detected."
