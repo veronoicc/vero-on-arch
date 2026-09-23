@@ -132,7 +132,9 @@ if [ -f "$REPO_DB" ]; then
             DB_MODIFIED=1
 
             if [ "${1:-}" = "--publish" ] && command -v gh >/dev/null 2>&1; then
-                gh release view "$ARCH" --json assets --jq ".assets[].name" 2>/dev/null | grep -E "^${db_pkg}-[0-9]" | while read -r asset; do
+                mapfile -t ASSETS_TO_DELETE < <(gh release view "$ARCH" --json assets --jq ".assets[].name" 2>/dev/null | grep -E "^${db_pkg}-[0-9]" || true)
+                for asset in "${ASSETS_TO_DELETE[@]}"; do
+                    [ -n "$asset" ] || continue
                     echo "Deleting asset '$asset' from GitHub release..."
                     gh release delete-asset "$ARCH" "$asset" -y || true
                 done
