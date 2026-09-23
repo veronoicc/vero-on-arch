@@ -10,7 +10,7 @@
 _pkgname="equibop"
 pkgname="$_pkgname-vero-git"
 pkgdesc="A custom Discord desktop app with Equicord pre-installed (git version)"
-pkgver=3.3.1.r0.g83b88c5
+pkgver=3.3.1.r0.g83b88c5.p924de2b
 pkgrel=1
 url="https://github.com/Equicord/Equibop"
 license=('GPL-3.0-only')
@@ -68,8 +68,10 @@ sha256sums=('SKIP' 'SKIP')
 
 pkgver() {
   cd "$_pkgsrc"
-  git describe --long --tags --abbrev=7 --exclude='*[a-zA-Z][a-zA-Z]*' \
-    | sed -E 's/^[^0-9]*//;s/([^-]*-g)/r\1/;s/-/./g'
+  _ver=$(git describe --long --tags --abbrev=7 --exclude='*[a-zA-Z][a-zA-Z]*' \
+    | sed -E 's/^[^0-9]*//;s/([^-]*-g)/r\1/;s/-/./g')
+  _plugins_rev=$(git -C "$srcdir/vencord-plugins" rev-parse --short=7 HEAD 2>/dev/null || echo "0")
+  echo "${_ver}.p${_plugins_rev}"
 }
 
 prepare() {
