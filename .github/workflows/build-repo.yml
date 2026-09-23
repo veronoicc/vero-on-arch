@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 3 * * 0' # Weekly on Sunday at 03:00 UTC
+    - cron: '0 */12 * * *' # Every 12 hours
   workflow_dispatch:
   repository_dispatch:
 
