@@ -77,12 +77,14 @@ prepare() {
   mkdir -p src/userplugins
   cp -a "$srcdir/vencord-plugins/." src/userplugins/
   rm -rf src/userplugins/.git
+  sed -i 's/bun-linux-x64-baseline/bun-linux-x64/g' scripts/build/compileArrpc.mts
 }
 
 build() {
   cd "$_pkgsrc"
   export SKIP_BUN_DOWNLOAD=true
-  CI=true bun install
+  export CI=false GITHUB_ACTIONS=false
+  bun install
   bun run buildLibVesktop
   bun run package:dir --publish never
 }
