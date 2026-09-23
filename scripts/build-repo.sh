@@ -16,6 +16,8 @@ fi
 
 REPO_DB="$DIST_DIR/${REPO_NAME}.db.tar.gz"
 BUILT_PKGS=()
+KNOWN_PKGS=()
+DB_MODIFIED=0
 
 echo "=== Scanning for packages ==="
 for pkgdir in "$REPO_ROOT"/*/; do
@@ -33,13 +35,20 @@ for pkgdir in "$REPO_ROOT"/*/; do
     pkgname=""
     pkgver=""
     pkgrel=""
-    eval "$(makepkg --printspec 2>/dev/null | grep -E '^(pkgname|pkgver|pkgrel)=')" || true
+    if pkgfile="$(basename "$(makepkg --packagelist 2>/dev/null | head -n1)" 2>/dev/null)" && [ -n "$pkgfile" ]; then
+        if [[ "$pkgfile" =~ ^(.+)-([^-]+)-([^-]+)-([^-]+)\.pkg\.tar\.(zst|xz|gz)$ ]]; then
+            pkgname="${BASH_REMATCH[1]}"
+            pkgver="${BASH_REMATCH[2]}"
+            pkgrel="${BASH_REMATCH[3]}"
+        fi
+    fi
+
     if [ -z "$pkgname" ] || [ -z "$pkgver" ] || [ -z "$pkgrel" ]; then
-        eval "$(grep -E '^(pkgname|pkgver|pkgrel)=' PKGBUILD)" || true
+        read -r pkgname pkgver pkgrel < <(bash -c 'source ./PKGBUILD 2>/dev/null; echo "${pkgname:-} ${pkgver:-} ${pkgrel:-}"' || true)
     fi
 
     echo "Package: $pkgname, Version: $pkgver-$pkgrel"
-
+    KNOWN_PKGS+=("$pkgname")
     # Check if this version already exists in repo database
     if [ -f "$REPO_DB" ] && tar -ztf "$REPO_DB" 2>/dev/null | grep -qx "${pkgname}-${pkgver}-${pkgrel}/"; then
         echo "Package $pkgname $pkgver-$pkgrel is already in repository database. Skipping build."
@@ -104,6 +113,39 @@ done
 
 cd "$DIST_DIR"
 
+# Prune packages from DB that were deleted from repo
+if [ -f "$REPO_DB" ]; then
+    mapfile -t DB_PKGS < <(tar -ztf "$REPO_DB" 2>/dev/null | grep '/$' | sed -E 's@/.*@@' | sed -E 's@-[^-]+-[^-]+$@@' | sort -u || true)
+    for db_pkg in "${DB_PKGS[@]}"; do
+        [ -n "$db_pkg" ] || continue
+        is_known=0
+        for known in "${KNOWN_PKGS[@]}"; do
+            if [ "$db_pkg" = "$known" ]; then
+                is_known=1
+                break
+            fi
+        done
+
+        if [ "$is_known" -eq 0 ]; then
+            echo "Package '$db_pkg' removed from repo. Pruning from database..."
+            repo-remove "${REPO_NAME}.db.tar.gz" "$db_pkg" || true
+            DB_MODIFIED=1
+
+            if [ "${1:-}" = "--publish" ] && command -v gh >/dev/null 2>&1; then
+                gh release view "$ARCH" --json assets --jq ".assets[].name" 2>/dev/null | grep -E "^${db_pkg}-[0-9]" | while read -r asset; do
+                    echo "Deleting asset '$asset' from GitHub release..."
+                    gh release delete-asset "$ARCH" "$asset" -y || true
+                done
+            fi
+        fi
+    done
+
+    if [ "$DB_MODIFIED" -eq 1 ]; then
+        cp -f --remove-destination "${REPO_NAME}.db.tar.gz" "${REPO_NAME}.db"
+        cp -f --remove-destination "${REPO_NAME}.files.tar.gz" "${REPO_NAME}.files"
+    fi
+fi
+
 if [ ${#BUILT_PKGS[@]} -eq 0 ]; then
     echo "No new packages to add."
 else
@@ -113,10 +155,11 @@ else
     # Replace symlinks with real files for GitHub Releases compatibility
     cp -f --remove-destination "${REPO_NAME}.db.tar.gz" "${REPO_NAME}.db"
     cp -f --remove-destination "${REPO_NAME}.files.tar.gz" "${REPO_NAME}.files"
+    DB_MODIFIED=1
 fi
 
 if [ "${1:-}" = "--publish" ] && command -v gh >/dev/null 2>&1; then
-    if [ ${#BUILT_PKGS[@]} -gt 0 ] || [ -f "$REPO_DB" ]; then
+    if [ "$DB_MODIFIED" -eq 1 ] || [ ${#BUILT_PKGS[@]} -gt 0 ]; then
         echo "=== Publishing to GitHub Releases ($ARCH) ==="
         if ! gh release view "$ARCH" >/dev/null 2>&1; then
             gh release create "$ARCH" --title "vero-on-arch ($ARCH)" --notes "Automated repository packages for $ARCH"

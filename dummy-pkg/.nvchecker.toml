@@ -1,7 +1,0 @@
-[__config__]
-oldver = "oldver.json"
-newver = "newver.json"
-
-[dummy-pkg]
-source = "manual"
-manual = "1.0.0"

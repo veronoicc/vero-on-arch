@@ -5,3 +5,5 @@ pkg/
 *.pkg.tar.xz
 *.part
 *.log
+*/equibop/
+*/vencord-plugins/
