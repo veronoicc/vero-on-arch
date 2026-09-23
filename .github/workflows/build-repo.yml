@@ -38,7 +38,8 @@ jobs:
 
       - name: Configure permissions and git
         run: |
-          chown -R builder:builder "$GITHUB_WORKSPACE"
+          mkdir -p /github/home
+          chown -R builder:builder "$GITHUB_WORKSPACE" /github/home /home/builder
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           sudo -u builder git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
@@ -47,8 +48,8 @@ jobs:
         run: |
           sudo -u builder bash -c '
             set -euo pipefail
+            export HOME=/home/builder
             cd /tmp
-            rm -rf yay-bin
             git clone https://aur.archlinux.org/yay-bin.git
             cd yay-bin
             makepkg -si --noconfirm
@@ -64,6 +65,7 @@ jobs:
         run: |
           sudo -u builder -E bash -c '
             set -euo pipefail
+            export HOME=/home/builder
             ./scripts/update-packages.sh --commit
           '
 
@@ -71,5 +73,6 @@ jobs:
         run: |
           sudo -u builder -E bash -c '
             set -euo pipefail
+            export HOME=/home/builder
             ./scripts/build-repo.sh --publish
           '
