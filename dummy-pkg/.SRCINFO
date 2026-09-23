@@ -1,0 +1,9 @@
+pkgbase = dummy-pkg
+	pkgdesc = Verification package for vero-on-arch
+	pkgver = 1.0.0
+	pkgrel = 1
+	url = https://github.com/veronoicc/vero-on-arch
+	arch = any
+	license = MIT
+
+pkgname = dummy-pkg

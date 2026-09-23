@@ -1,0 +1,13 @@
+# Maintainer: veronoicc <https://github.com/veronoicc>
+pkgname=dummy-pkg
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Verification package for vero-on-arch"
+arch=('any')
+url="https://github.com/veronoicc/vero-on-arch"
+license=('MIT')
+
+package() {
+    install -d "${pkgdir}/usr/share/doc/${pkgname}"
+    echo "vero-on-arch verification package" > "${pkgdir}/usr/share/doc/${pkgname}/README"
+}
