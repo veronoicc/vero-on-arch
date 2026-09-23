@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Bootstrap container and dependencies
         run: |
-          pacman -Syu --noconfirm git sudo devtools namcap nvchecker github-cli pacman-contrib
+          pacman -Syu --noconfirm git sudo devtools namcap nvchecker github-cli pacman-contrib pnpm
 
           # Create non-root builder user
           id -u builder &>/dev/null || useradd -m -s /bin/bash builder

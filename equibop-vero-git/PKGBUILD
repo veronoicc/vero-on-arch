@@ -9,8 +9,8 @@
 # basic info
 _pkgname="equibop"
 pkgname="$_pkgname-vero-git"
-pkgdesc="A custom Discord desktop app with Equicord pre-installed (git version)"
-pkgver=3.3.1.r0.g83b88c5.p84e127d
+pkgdesc="Custom Discord desktop app with Equicord git and userplugins pre-bundled"
+pkgver=3.3.1.r0.g83b88c5.c957307d.p84e127d
 pkgrel=1
 url="https://github.com/Equicord/Equibop"
 license=('GPL-3.0-only')
@@ -39,6 +39,7 @@ depends=(
 makedepends=(
   'git'
   'bun'
+  'pnpm'
   'cmake'
   'gcc'
   'nodejs'
@@ -61,29 +62,41 @@ conflicts=(
 
 _pkgsrc="$_pkgname"
 source=(
-  "$_pkgsrc"::"git+$url.git"
+  "equibop"::"git+$url.git"
+  "equicord"::"git+https://github.com/Equicord/Equicord.git"
   "vencord-plugins"::"git+https://github.com/veronoicc/vencord-plugins.git"
 )
-sha256sums=('SKIP' 'SKIP')
+sha256sums=('SKIP' 'SKIP' 'SKIP')
 
 pkgver() {
-  cd "$_pkgsrc"
-  _ver=$(git describe --long --tags --abbrev=7 --exclude='*[a-zA-Z][a-zA-Z]*' \
+  cd "$srcdir/equibop"
+  _bop_ver=$(git describe --long --tags --abbrev=7 --exclude='*[a-zA-Z][a-zA-Z]*' 2>/dev/null \
     | sed -E 's/^[^0-9]*//;s/([^-]*-g)/r\1/;s/-/./g')
+  _cord_rev=$(git -C "$srcdir/equicord" rev-parse --short=7 HEAD 2>/dev/null || echo "0")
   _plugins_rev=$(git -C "$srcdir/vencord-plugins" rev-parse --short=7 HEAD 2>/dev/null || echo "0")
-  echo "${_ver}.p${_plugins_rev}"
+  echo "${_bop_ver}.c${_cord_rev}.p${_plugins_rev}"
 }
 
 prepare() {
-  cd "$_pkgsrc"
-  mkdir -p src/userplugins
-  cp -a "$srcdir/vencord-plugins/." src/userplugins/
-  rm -rf src/userplugins/.git src/userplugins/.github
+  # 1. Setup userplugins in equicord
+  mkdir -p "$srcdir/equicord/src/userplugins"
+  cp -a "$srcdir/vencord-plugins/." "$srcdir/equicord/src/userplugins/"
+  rm -rf "$srcdir/equicord/src/userplugins/.git" "$srcdir/equicord/src/userplugins/.github"
+
+  # 2. Patch equibop to use bundled equibop.asar if present
+  cd "$srcdir/equibop"
   sed -i 's/bun-linux-x64-baseline/bun-linux-x64/g' scripts/build/compileArrpc.mts
+  sed -i 's@: join(SESSION_DATA_DIR, "equicord.asar");@: require("fs").existsSync("/usr/share/equibop/equibop.asar") ? "/usr/share/equibop/equibop.asar" : join(SESSION_DATA_DIR, "equicord.asar");@' src/main/vencordDir.ts
 }
 
 build() {
-  cd "$_pkgsrc"
+  # 1. Build Equicord with custom userplugins
+  cd "$srcdir/equicord"
+  pnpm install --frozen-lockfile
+  pnpm build
+
+  # 2. Build Equibop
+  cd "$srcdir/equibop"
   export SKIP_BUN_DOWNLOAD=true
   export CI=false GITHUB_ACTIONS=false
   bun install
@@ -93,12 +106,16 @@ build() {
 
 package() {
   install -d "$pkgdir/$_install_path/$_pkgname"
-  cp --reflink=auto -r "$_pkgsrc/dist/linux-unpacked/resources/app.asar" "$pkgdir/$_install_path/$_pkgname/"
-  cp --reflink=auto -r "$_pkgsrc/dist/linux-unpacked/resources/app-update.yml" "$pkgdir/$_install_path/$_pkgname/"
-  cp --reflink=auto -r "$_pkgsrc/dist/linux-unpacked/resources/arrpc" "$pkgdir/$_install_path/$_pkgname/"
+  cp --reflink=auto -r "$srcdir/equibop/dist/linux-unpacked/resources/app.asar" "$pkgdir/$_install_path/$_pkgname/"
+  cp --reflink=auto -r "$srcdir/equibop/dist/linux-unpacked/resources/app-update.yml" "$pkgdir/$_install_path/$_pkgname/"
+  cp --reflink=auto -r "$srcdir/equibop/dist/linux-unpacked/resources/arrpc" "$pkgdir/$_install_path/$_pkgname/"
 
-  install -Dm644 "$_pkgsrc/static/icon.png" "$pkgdir/usr/share/pixmaps/$_pkgname.png"
-  install -Dm644 "$_pkgsrc/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+  # Bundle compiled equibop.asar containing userplugins
+  install -Dm644 "$srcdir/equicord/dist/equibop.asar" "$pkgdir/$_install_path/$_pkgname/equibop.asar"
+
+  install -Dm644 "$srcdir/equibop/static/icon.png" "$pkgdir/usr/share/pixmaps/$_pkgname.png"
+  install -Dm644 "$srcdir/equibop/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+
 
   install -Dm755 /dev/stdin "$pkgdir/usr/bin/$_pkgname" << END
 #!/usr/bin/env sh
