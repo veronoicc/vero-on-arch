@@ -79,10 +79,13 @@ pkgver() {
 
 prepare() {
   # 1. Setup userplugins in equicord
+  cd "$srcdir/vencord-plugins"
+  git submodule update --init --recursive
+
   mkdir -p "$srcdir/equicord/src/userplugins"
   cp -a "$srcdir/vencord-plugins/." "$srcdir/equicord/src/userplugins/"
-  rm -rf "$srcdir/equicord/src/userplugins/.git" "$srcdir/equicord/src/userplugins/.github"
-
+  find "$srcdir/equicord/src/userplugins" -name .git -exec rm -rf {} +
+  rm -rf "$srcdir/equicord/src/userplugins/.github"
   # 2. Patch equibop to use bundled equibop.asar if present
   cd "$srcdir/equibop"
   sed -i 's/bun-linux-x64-baseline/bun-linux-x64/g' scripts/build/compileArrpc.mts

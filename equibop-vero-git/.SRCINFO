@@ -1,12 +1,13 @@
 pkgbase = equibop-vero-git
-	pkgdesc = A custom Discord desktop app with Equicord pre-installed (git version)
-	pkgver = 3.3.1.r0.g83b88c5
+	pkgdesc = Custom Discord desktop app with Equicord git and userplugins pre-bundled
+	pkgver = 3.3.1.r0.g83b88c5.c957307d.p84e127d
 	pkgrel = 1
 	url = https://github.com/Equicord/Equibop
 	arch = any
 	license = GPL-3.0-only
 	makedepends = git
 	makedepends = bun
+	makedepends = pnpm
 	makedepends = cmake
 	makedepends = gcc
 	makedepends = nodejs
@@ -20,7 +21,9 @@ pkgbase = equibop-vero-git
 	conflicts = equibop-git
 	options = !strip
 	source = equibop::git+https://github.com/Equicord/Equibop.git
+	source = equicord::git+https://github.com/Equicord/Equicord.git
 	source = vencord-plugins::git+https://github.com/veronoicc/vencord-plugins.git
+	sha256sums = SKIP
 	sha256sums = SKIP
 	sha256sums = SKIP
 
