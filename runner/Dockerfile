@@ -30,6 +30,8 @@ RUN sed -i 's/^#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf 
         krb5 \
         openssl \
         zlib \
+        libunwind \
+        lttng-ust \
         devtools \
         namcap \
         nvchecker \
@@ -66,7 +68,6 @@ RUN curl -o actions-runner-linux-x64.tar.gz -L \
         "https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz" && \
     tar xzf actions-runner-linux-x64.tar.gz && \
     rm -f actions-runner-linux-x64.tar.gz && \
-    ./bin/installdependencies.sh && \
     chown -R builder:builder /home/builder
 
 COPY entrypoint.sh /entrypoint.sh

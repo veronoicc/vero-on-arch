@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'runner/**'
+      - '.github/workflows/docker.yml'
+      - 'README.md'
+      - '.gitignore'
   schedule:
     - cron: '0 */12 * * *' # Every 12 hours
   workflow_dispatch:
