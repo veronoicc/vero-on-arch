@@ -1,7 +1,7 @@
 pkgbase = surface-pro8-camera-dkms-git
-	pkgdesc = DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge)
+	pkgdesc = DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge, vd55g)
 	pkgver = r29.b0a9b40
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/fildunsky/linux-surface-pro8-cameras
 	arch = any
 	license = GPL-2.0-only
@@ -10,6 +10,14 @@ pkgbase = surface-pro8-camera-dkms-git
 	provides = surface-pro8-camera-dkms
 	conflicts = surface-pro8-camera-dkms
 	source = linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master
+	source = vd55g.c::https://raw.githubusercontent.com/petm5/linux-surface-kernel/v6.18-surface-devel-vd55g0/drivers/media/i2c/vd55g.c
+	source = vd55g-fw.h::https://raw.githubusercontent.com/petm5/linux-surface-kernel/v6.18-surface-devel-vd55g0/drivers/media/i2c/vd55g-fw.h
+	source = vd55g-Makefile
+	source = vd55g-dkms.conf
 	sha256sums = SKIP
+	sha256sums = ada12396b17d3610cbc17256c578ab31007dba22af3ad5b41ac470b69656eaac
+	sha256sums = 775a428cc51c0b1914cacbee29489e1be7374e05972a5ac24f9ef32bf2bf3ce1
+	sha256sums = bfe63992d3bd8058bc5a0bcd382109cf675ab501f60b7323e2e809367340f998
+	sha256sums = 7e3944bd8ec2903fc04c38dc83ac7797b168dfd8781365fcef9f359adc6e2219
 
 pkgname = surface-pro8-camera-dkms-git

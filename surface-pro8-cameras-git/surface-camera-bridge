@@ -1,0 +1,274 @@
+#!/usr/bin/env python3
+"""Surface Pro 8 Camera on-demand bridge to v4l2loopback.
+Supports 'front' and 'rear' cameras using libcamera (libcamerasrc).
+Streams only when an application (browser, Discord, etc.) opens the device.
+"""
+
+import fcntl
+import os
+import select
+import signal
+import struct
+import subprocess
+import sys
+import time
+
+if len(sys.argv) < 2 or sys.argv[1] not in ("front", "rear"):
+    sys.exit("Usage: surface-camera-bridge <front|rear>")
+
+MODE = sys.argv[1]
+
+W, H, FPS = 1280, 720, 30
+FRAME_SIZE = W * H * 2
+
+if MODE == "front":
+    LOOPBACK_LABEL = "Surface Camera"
+    CAM_ID = r"\_SB_.PC00.I2C2.CAMF"
+else:
+    LOOPBACK_LABEL = "Surface Camera Rear"
+    CAM_ID = r"\_SB_.PC00.I2C3.CAMR"
+
+GST_CMD = [
+    "gst-launch-1.0", "-q",
+    "libcamerasrc", f"camera-name={CAM_ID}", "!",
+    f"video/x-raw,width={W},height={H},framerate={FPS}/1", "!",
+    "videoconvert", "!",
+    "video/x-raw,format=YUY2", "!",
+    "fdsink", "fd=1",
+]
+
+FIRST_FRAME_TIMEOUT = 20.0
+MAX_ATTEMPTS = 3
+CLIENT_GRACE = 3.0
+STOP_BUDGET = 20.0
+
+VIDIOC_S_FMT = 0xC0D05605
+VIDIOC_S_PARM = 0xC0CC5616
+VIDIOC_SUBSCRIBE_EVENT = 0x4020565A
+VIDIOC_DQEVENT = 0x80885659
+BUF_TYPE_OUTPUT = 2
+FMT_YUYV = 0x56595559
+V4L2_EVENT_PRI_CLIENT_USAGE = 0x08000000 + 0x08E00000 + 1
+
+BLACK_FRAME = bytes([16, 128]) * (W * H)
+
+
+def log(msg):
+    print(f"[{time.monotonic():.3f}] [{MODE}] {msg}", flush=True)
+
+
+def find_loopback(label):
+    base = "/sys/devices/virtual/video4linux"
+    if not os.path.exists(base):
+        return None
+    for name in sorted(os.listdir(base)):
+        try:
+            path = f"{base}/{name}/name"
+            if open(path).read().strip() == label:
+                return "/dev/" + name
+        except OSError:
+            pass
+    return None
+
+
+def s_fmt_output(fd):
+    fmt = bytearray(204)
+    struct.pack_into("I", fmt, 0, BUF_TYPE_OUTPUT)
+    struct.pack_into("IIII", fmt, 8, W, H, FMT_YUYV, 1)
+    fcntl.ioctl(fd, VIDIOC_S_FMT, fmt)
+
+
+def s_parm_output(fd):
+    parm = bytearray(204)
+    struct.pack_into("I", parm, 0, BUF_TYPE_OUTPUT)
+    struct.pack_into("II", parm, 4, 0x1000, 0)
+    struct.pack_into("II", parm, 12, 1, FPS)
+    try:
+        fcntl.ioctl(fd, VIDIOC_S_PARM, parm)
+    except OSError:
+        pass
+
+
+def poll_client_count(fd):
+    count = None
+    while True:
+        _, _, x = select.select([], [], [fd], 0)
+        if not x:
+            return count
+        ev = bytearray(136)
+        try:
+            fcntl.ioctl(fd, VIDIOC_DQEVENT, ev)
+        except OSError:
+            return count
+        if struct.unpack_from("I", ev, 0)[0] == V4L2_EVENT_PRI_CLIENT_USAGE:
+            count = struct.unpack_from("I", ev, 8)[0]
+
+
+def stop_gst(proc):
+    if proc.poll() is not None:
+        return True
+    deadline = time.monotonic() + STOP_BUDGET
+    proc.send_signal(signal.SIGINT)
+    next_int = time.monotonic() + 4.0
+    while time.monotonic() < deadline:
+        if proc.poll() is not None:
+            return True
+        if time.monotonic() >= next_int:
+            try:
+                proc.send_signal(signal.SIGINT)
+            except ProcessLookupError:
+                return True
+            next_int = time.monotonic() + 4.0
+        time.sleep(0.2)
+    return proc.poll() is not None
+
+
+class SessionOver(Exception):
+    pass
+
+
+CURRENT_PROC = [None]
+
+
+def run_session(out_fd, client_open_t):
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        log(f"starting producer pipeline (attempt {attempt}/{MAX_ATTEMPTS})")
+        proc = subprocess.Popen(GST_CMD, stdout=subprocess.PIPE,
+                                stderr=subprocess.DEVNULL)
+        CURRENT_PROC[0] = proc
+        pipe = proc.stdout.fileno()
+        os.set_blocking(pipe, False)
+        try:
+            fcntl.fcntl(pipe, 1031, 1 << 20)  # F_SETPIPE_SZ, 1 MiB
+        except OSError:
+            pass
+
+        buf = bytearray()
+        first_frame_t = None
+        frames = 0
+        gone_since = None
+        spawn_t = time.monotonic()
+        next_splash = 0.0
+
+        try:
+            while True:
+                now = time.monotonic()
+
+                if first_frame_t is None and now - spawn_t > FIRST_FRAME_TIMEOUT:
+                    log("no frames received from libcamera (timed out)")
+                    break
+
+                if first_frame_t is None and now >= next_splash:
+                    try:
+                        os.write(out_fd, BLACK_FRAME)
+                    except OSError:
+                        pass
+                    next_splash = now + 1.0 / FPS
+
+                r, _, _ = select.select([pipe], [], [out_fd], 0.02)
+                if r:
+                    try:
+                        chunk = os.read(pipe, 1 << 20)
+                    except BlockingIOError:
+                        chunk = b""
+                    if chunk == b"" and proc.poll() is not None:
+                        if first_frame_t is None:
+                            log("producer exited before first frame")
+                            break
+                        raise SessionOver("producer exited")
+                    buf += chunk
+                    while len(buf) >= FRAME_SIZE:
+                        frame = bytes(buf[:FRAME_SIZE])
+                        del buf[:FRAME_SIZE]
+                        frames += 1
+                        if first_frame_t is None:
+                            first_frame_t = time.monotonic()
+                            log(f"first frame ready ({first_frame_t - client_open_t:.2f}s after client open)")
+                        try:
+                            os.write(out_fd, frame)
+                        except OSError as exc:
+                            raise SessionOver(f"loopback write failed: {exc}")
+
+                count = poll_client_count(out_fd)
+                if count is not None:
+                    log(f"connected clients: {count}")
+                    gone_since = None if count else time.monotonic()
+                if gone_since and time.monotonic() - gone_since > CLIENT_GRACE:
+                    raise SessionOver("all clients disconnected")
+
+        except SessionOver as exc:
+            elapsed = time.monotonic() - (first_frame_t or spawn_t)
+            log(f"session ended: {exc} ({frames} frames served)")
+            stop_gst(proc)
+            if str(exc) == "producer exited" and gone_since is None:
+                log("client still present, restarting producer")
+                time.sleep(1.0)
+                return True
+            return False
+
+        stop_gst(proc)
+        if attempt < MAX_ATTEMPTS:
+            time.sleep(1.0)
+
+    log(f"exhausted {MAX_ATTEMPTS} attempts, waiting for next client event")
+    time.sleep(2.0)
+    return False
+
+
+def _terminate(signum, frame):
+    raise KeyboardInterrupt(f"signal {signum}")
+
+
+def main():
+    signal.signal(signal.SIGTERM, _terminate)
+    signal.signal(signal.SIGINT, _terminate)
+
+    loopback = None
+    for _ in range(30):
+        loopback = find_loopback(LOOPBACK_LABEL)
+        if loopback:
+            break
+        time.sleep(1.0)
+
+    if not loopback:
+        sys.exit(f"no v4l2loopback device found with label '{LOOPBACK_LABEL}'")
+
+    out_fd = os.open(loopback, os.O_RDWR)
+    s_fmt_output(out_fd)
+    s_parm_output(out_fd)
+    os.write(out_fd, BLACK_FRAME)
+
+    sub = bytearray(32)
+    struct.pack_into("I", sub, 0, V4L2_EVENT_PRI_CLIENT_USAGE)
+    fcntl.ioctl(out_fd, VIDIOC_SUBSCRIBE_EVENT, sub)
+
+    log(f"serving {loopback} ({W}x{H} YUY2) on-demand, waiting for client")
+
+    try:
+        while True:
+            ev = bytearray(136)
+            try:
+                fcntl.ioctl(out_fd, VIDIOC_DQEVENT, ev)
+            except OSError:
+                time.sleep(0.1)
+                continue
+            if struct.unpack_from("I", ev, 0)[0] != V4L2_EVENT_PRI_CLIENT_USAGE:
+                continue
+            count = struct.unpack_from("I", ev, 8)[0]
+            log(f"client event: {count} clients")
+            if count > 0:
+                client_open_t = time.monotonic()
+                while run_session(out_fd, client_open_t):
+                    client_open_t = time.monotonic()
+                log("idle: camera suspended (0% CPU)")
+
+    except KeyboardInterrupt:
+        log("shutting down bridge")
+        if CURRENT_PROC[0]:
+            stop_gst(CURRENT_PROC[0])
+    finally:
+        os.close(out_fd)
+
+
+if __name__ == "__main__":
+    main()

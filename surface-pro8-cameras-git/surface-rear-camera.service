@@ -1,0 +1,13 @@
+[Unit]
+Description=Surface Pro 8 Rear Camera V4L2 Bridge
+After=modprobe@v4l2loopback.service
+Wants=modprobe@v4l2loopback.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/surface-camera-bridge rear
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

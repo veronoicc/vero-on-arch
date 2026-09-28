@@ -3,7 +3,7 @@
 pkgname=surface-pro8-cameras-git
 _pkgname=surface-pro8-cameras
 pkgver=r29.b0a9b40
-pkgrel=1
+pkgrel=2
 pkgdesc="Userspace tools, IR bridge, systemd services, and libcamera tunings for Surface Pro 8 cameras"
 arch=('any')
 url="https://github.com/fildunsky/linux-surface-pro8-cameras"
@@ -15,6 +15,9 @@ depends=(
   'libcamera'
   'python-numpy'
   'v4l-utils'
+  'gst-plugin-libcamera'
+  'gst-plugins-base'
+  'gst-plugins-good'
 )
 makedepends=('git')
 provides=("$_pkgname")
@@ -22,9 +25,15 @@ conflicts=("$_pkgname")
 source=(
   "linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master"
   "v4l2loopback-surface.conf"
+  "surface-camera-bridge"
+  "surface-front-camera.service"
+  "surface-rear-camera.service"
 )
 sha256sums=('SKIP'
-            '22fb7ca9b42c950568f08c46eea4b7ed24612b01f754a37d99281e6ea90136db')
+            '22fb7ca9b42c950568f08c46eea4b7ed24612b01f754a37d99281e6ea90136db'
+            '021a3601003ec5826220a661898beb7cc57341e467596559bff84d4ce96c81ed'
+            '66a073610ca7b39f7fe1584590ed9e7bafa339bd549c3779049a39d1d931000e'
+            '9c8d1f4a47b6d5cfe1a8e60eb01bac283d097e80dd87e93ca543d7eab44d5e11')
 pkgver() {
   cd "$srcdir/linux-surface-pro8-cameras"
   printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
@@ -40,6 +49,8 @@ package() {
   # Patch surface-ir-bridge to use /usr/lib/surface-camera/surface-ir-setup.sh
   sed -i 's|/usr/local/lib/surface-ir-setup.sh|/usr/lib/surface-camera/surface-ir-setup.sh|g' tools/surface-ir-bridge
   install -m 755 tools/surface-ir-bridge "${pkgdir}/usr/bin/surface-ir-bridge"
+  install -m 755 "$srcdir/surface-camera-bridge" "${pkgdir}/usr/bin/surface-camera-bridge"
+
 
   install -m 755 tools/ir-setup.sh "${pkgdir}/usr/lib/surface-camera/surface-ir-setup.sh"
   install -m 755 tools/surface-ir-wait.sh "${pkgdir}/usr/lib/surface-camera/surface-ir-wait.sh"
@@ -49,6 +60,9 @@ package() {
   install -d "${pkgdir}/usr/lib/systemd/system"
   sed -i 's|/usr/local/bin/surface-ir-bridge|/usr/bin/surface-ir-bridge|g' tools/surface-ir-camera.service
   install -m 644 tools/surface-ir-camera.service "${pkgdir}/usr/lib/systemd/system/surface-ir-camera.service"
+  install -m 644 "$srcdir/surface-front-camera.service" "${pkgdir}/usr/lib/systemd/system/surface-front-camera.service"
+  install -m 644 "$srcdir/surface-rear-camera.service" "${pkgdir}/usr/lib/systemd/system/surface-rear-camera.service"
+
 
   # 3. Install udev rules
   install -d "${pkgdir}/usr/lib/udev/rules.d"

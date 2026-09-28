@@ -3,8 +3,8 @@
 pkgname=surface-pro8-camera-dkms-git
 _pkgname=surface-pro8-camera-dkms
 pkgver=r29.b0a9b40
-pkgrel=2
-pkgdesc="DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge)"
+pkgrel=3
+pkgdesc="DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge, vd55g)"
 arch=('any')
 url="https://github.com/fildunsky/linux-surface-pro8-cameras"
 license=('GPL-2.0-only')
@@ -12,8 +12,18 @@ depends=('dkms')
 makedepends=('git')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
-source=("linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master")
-sha256sums=('SKIP')
+source=(
+  "linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master"
+  "vd55g.c::https://raw.githubusercontent.com/petm5/linux-surface-kernel/v6.18-surface-devel-vd55g0/drivers/media/i2c/vd55g.c"
+  "vd55g-fw.h::https://raw.githubusercontent.com/petm5/linux-surface-kernel/v6.18-surface-devel-vd55g0/drivers/media/i2c/vd55g-fw.h"
+  "vd55g-Makefile"
+  "vd55g-dkms.conf"
+)
+sha256sums=('SKIP'
+            'ada12396b17d3610cbc17256c578ab31007dba22af3ad5b41ac470b69656eaac'
+            '775a428cc51c0b1914cacbee29489e1be7374e05972a5ac24f9ef32bf2bf3ce1'
+            'bfe63992d3bd8058bc5a0bcd382109cf675ab501f60b7323e2e809367340f998'
+            '7e3944bd8ec2903fc04c38dc83ac7797b168dfd8781365fcef9f359adc6e2219')
 
 pkgver() {
   cd "$srcdir/linux-surface-pro8-cameras"
@@ -58,4 +68,11 @@ BUILT_MODULE_NAME[0]="ov13858"
 DEST_MODULE_LOCATION[0]="/updates"
 AUTOINSTALL="yes"
 EOF
+
+  # IR camera (ST VD55G0 global shutter mono, SMO55F0)
+  install -d "$_dest/vd55g-1.0"
+  install -m 644 "$srcdir/vd55g.c" "$_dest/vd55g-1.0/vd55g.c"
+  install -m 644 "$srcdir/vd55g-fw.h" "$_dest/vd55g-1.0/vd55g-fw.h"
+  install -m 644 "$srcdir/vd55g-Makefile" "$_dest/vd55g-1.0/Makefile"
+  install -m 644 "$srcdir/vd55g-dkms.conf" "$_dest/vd55g-1.0/dkms.conf"
 }
