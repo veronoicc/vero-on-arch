@@ -1,0 +1,14 @@
+pkgbase = vd55g-firmware-git
+	pkgdesc = Binary firmware for STMicroelectronics VD55G camera sensors (Surface Pro 8 IR camera)
+	pkgver = r2.e519457
+	pkgrel = 1
+	url = https://github.com/petm5/vd55g-firmware
+	arch = any
+	license = GPL-2.0-only
+	makedepends = git
+	provides = vd55g-firmware
+	conflicts = vd55g-firmware
+	source = vd55g-firmware::git+https://github.com/petm5/vd55g-firmware.git
+	sha256sums = SKIP
+
+pkgname = vd55g-firmware-git

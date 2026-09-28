@@ -1,0 +1,67 @@
+# Maintainer: veronoicc
+
+pkgname=surface-pro8-cameras-git
+_pkgname=surface-pro8-cameras
+pkgver=r29.b0a9b40
+pkgrel=1
+pkgdesc="Userspace tools, IR bridge, systemd services, and libcamera tunings for Surface Pro 8 cameras"
+arch=('any')
+url="https://github.com/fildunsky/linux-surface-pro8-cameras"
+license=('GPL-2.0-only' 'MIT')
+depends=(
+  'surface-pro8-camera-dkms-git'
+  'vd55g-firmware-git'
+  'v4l2loopback-dkms'
+  'libcamera'
+  'python-numpy'
+  'v4l-utils'
+)
+makedepends=('git')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=(
+  "linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master"
+  "v4l2loopback-surface.conf"
+)
+sha256sums=('SKIP'
+            'c814b1a45749f53e6d246036122d26f7435f0533036c84cbe2315fa76655c65a')
+
+pkgver() {
+  cd "$srcdir/linux-surface-pro8-cameras"
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+package() {
+  cd "$srcdir/linux-surface-pro8-cameras"
+
+  # 1. Install userspace binaries and helper scripts
+  install -d "${pkgdir}/usr/bin"
+  install -d "${pkgdir}/usr/lib/surface-camera"
+
+  # Patch surface-ir-bridge to use /usr/lib/surface-camera/surface-ir-setup.sh
+  sed -i 's|/usr/local/lib/surface-ir-setup.sh|/usr/lib/surface-camera/surface-ir-setup.sh|g' tools/surface-ir-bridge
+  install -m 755 tools/surface-ir-bridge "${pkgdir}/usr/bin/surface-ir-bridge"
+
+  install -m 755 tools/ir-setup.sh "${pkgdir}/usr/lib/surface-camera/surface-ir-setup.sh"
+  install -m 755 tools/surface-ir-wait.sh "${pkgdir}/usr/lib/surface-camera/surface-ir-wait.sh"
+  install -m 755 tools/pipewire-hold.sh "${pkgdir}/usr/lib/surface-camera/pipewire-hold.sh"
+
+  # 2. Install systemd service
+  install -d "${pkgdir}/usr/lib/systemd/system"
+  sed -i 's|/usr/local/bin/surface-ir-bridge|/usr/bin/surface-ir-bridge|g' tools/surface-ir-camera.service
+  install -m 644 tools/surface-ir-camera.service "${pkgdir}/usr/lib/systemd/system/surface-ir-camera.service"
+
+  # 3. Install udev rules
+  install -d "${pkgdir}/usr/lib/udev/rules.d"
+  install -m 644 tools/70-dma-heap-video.rules "${pkgdir}/usr/lib/udev/rules.d/70-dma-heap-video.rules"
+  install -m 644 tools/99-surface-ir-camera.rules "${pkgdir}/usr/lib/udev/rules.d/99-surface-ir-camera.rules"
+
+  # 4. Install libcamera tunings
+  install -d "${pkgdir}/usr/share/libcamera/ipa/simple"
+  install -m 644 tuning/ov5693.yaml "${pkgdir}/usr/share/libcamera/ipa/simple/ov5693.yaml"
+  install -m 644 tuning/ov13858.yaml "${pkgdir}/usr/share/libcamera/ipa/simple/ov13858.yaml"
+
+  # 5. Install v4l2loopback modprobe configuration
+  install -d "${pkgdir}/usr/lib/modprobe.d"
+  install -m 644 "$srcdir/v4l2loopback-surface.conf" "${pkgdir}/usr/lib/modprobe.d/v4l2loopback-surface.conf"
+}

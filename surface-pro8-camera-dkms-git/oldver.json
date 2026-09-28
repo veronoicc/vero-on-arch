@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "data": {
+    "surface-pro8-camera-dkms": {
+      "version": "20260926.051546",
+      "revision": "b0a9b403382508469cc3693d5dabe28ab8c2d958",
+      "url": "https://github.com/fildunsky/linux-surface-pro8-cameras/commit/b0a9b403382508469cc3693d5dabe28ab8c2d958",
+      "revision_creation_time": "2026-09-26T05:15:46Z"
+    }
+  }
+}

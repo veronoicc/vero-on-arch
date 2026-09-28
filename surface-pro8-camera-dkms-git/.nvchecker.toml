@@ -1,0 +1,8 @@
+[__config__]
+oldver = "oldver.json"
+newver = "newver.json"
+
+[surface-pro8-camera-dkms]
+source = "github"
+github = "fildunsky/linux-surface-pro8-cameras"
+branch = "master"

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "data": {
+    "vd55g-firmware": {
+      "version": "20260721.200031",
+      "revision": "e519457ec5e379a791a6a28e8dbda03499c75bb7",
+      "url": "https://github.com/petm5/vd55g-firmware/commit/e519457ec5e379a791a6a28e8dbda03499c75bb7",
+      "revision_creation_time": "2026-07-21T20:00:31Z"
+    }
+  }
+}

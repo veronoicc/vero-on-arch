@@ -1,0 +1,23 @@
+pkgbase = surface-pro8-cameras-git
+	pkgdesc = Userspace tools, IR bridge, systemd services, and libcamera tunings for Surface Pro 8 cameras
+	pkgver = r29.b0a9b40
+	pkgrel = 1
+	url = https://github.com/fildunsky/linux-surface-pro8-cameras
+	arch = any
+	license = GPL-2.0-only
+	license = MIT
+	makedepends = git
+	depends = surface-pro8-camera-dkms-git
+	depends = vd55g-firmware-git
+	depends = v4l2loopback-dkms
+	depends = libcamera
+	depends = python-numpy
+	depends = v4l-utils
+	provides = surface-pro8-cameras
+	conflicts = surface-pro8-cameras
+	source = linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master
+	source = v4l2loopback-surface.conf
+	sha256sums = SKIP
+	sha256sums = c814b1a45749f53e6d246036122d26f7435f0533036c84cbe2315fa76655c65a
+
+pkgname = surface-pro8-cameras-git
