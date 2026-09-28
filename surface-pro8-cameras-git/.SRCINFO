@@ -18,6 +18,6 @@ pkgbase = surface-pro8-cameras-git
 	source = linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master
 	source = v4l2loopback-surface.conf
 	sha256sums = SKIP
-	sha256sums = c814b1a45749f53e6d246036122d26f7435f0533036c84cbe2315fa76655c65a
+	sha256sums = 22fb7ca9b42c950568f08c46eea4b7ed24612b01f754a37d99281e6ea90136db
 
 pkgname = surface-pro8-cameras-git

@@ -24,8 +24,7 @@ source=(
   "v4l2loopback-surface.conf"
 )
 sha256sums=('SKIP'
-            'c814b1a45749f53e6d246036122d26f7435f0533036c84cbe2315fa76655c65a')
-
+            '22fb7ca9b42c950568f08c46eea4b7ed24612b01f754a37d99281e6ea90136db')
 pkgver() {
   cd "$srcdir/linux-surface-pro8-cameras"
   printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
