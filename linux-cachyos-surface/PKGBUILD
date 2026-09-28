@@ -191,7 +191,7 @@ _tagrel=1
 _srcname=cachyos-${_major}.${_minor}-${_tagrel}
 #_srcname=linux-${_stable}
 #_srcname=linux-${_major}
-pkgdesc='Linux EEVDF + LTO + AutoFDO + Propeller Cachy Sauce Kernel by CachyOS with other patches and improvements.'
+pkgdesc='Linux CachyOS kernel with linux-surface patches'
 pkgrel=1
 _kernver="$pkgver-$pkgrel"
 _kernuname="${pkgver}-${_pkgsuffix}"
@@ -611,7 +611,7 @@ build() {
 }
 
 _package() {
-    pkgdesc="The $pkgdesc kernel and modules"
+    pkgdesc="The Linux CachyOS kernel with linux-surface patches and modules"
     depends=('coreutils' 'kmod' 'initramfs')
     optdepends=('wireless-regdb: to set the correct wireless channels of your country'
                 'linux-firmware: firmware images needed for some devices'
@@ -645,7 +645,7 @@ _package() {
 }
 
 _package-headers() {
-    pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel"
+    pkgdesc="Headers and scripts for building modules for the Linux CachyOS kernel with linux-surface patches"
     depends=('pahole' "${pkgbase}")
 
     if _is_lto_kernel; then
