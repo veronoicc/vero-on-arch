@@ -83,25 +83,12 @@ for pkgdir in "$REPO_ROOT"/*/; do
     rm -f *.pkg.tar.zst src pkg -rf
 
     BUILD_SUCCESS=0
-    if command -v paru >/dev/null 2>&1; then
-        echo "Attempting build with paru..."
-        if paru -B . --noconfirm --chroot 2>/dev/null; then
-            BUILD_SUCCESS=1
-        elif paru -B . --noconfirm 2>/dev/null; then
-            BUILD_SUCCESS=1
-        fi
-    fi
-
-    if [ "$BUILD_SUCCESS" -ne 1 ] && command -v yay >/dev/null 2>&1; then
-        echo "Attempting build with yay..."
-        if yay -B . --noconfirm 2>/dev/null; then
-            BUILD_SUCCESS=1
-        fi
-    fi
-
-    if [ "$BUILD_SUCCESS" -ne 1 ] && command -v makepkg >/dev/null 2>&1; then
-        echo "Attempting build with makepkg..."
-        if makepkg -s --noconfirm; then
+    echo "Building with makepkg..."
+    if makepkg -s --noconfirm; then
+        BUILD_SUCCESS=1
+    elif command -v yay >/dev/null 2>&1; then
+        echo "makepkg failed or needs AUR dependencies, retrying with yay..."
+        if yay -B . --noconfirm --nodiffmenu --nocleanmenu; then
             BUILD_SUCCESS=1
         fi
     fi
