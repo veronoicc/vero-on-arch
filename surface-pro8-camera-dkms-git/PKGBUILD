@@ -3,7 +3,7 @@
 pkgname=surface-pro8-camera-dkms-git
 _pkgname=surface-pro8-camera-dkms
 pkgver=r29.b0a9b40
-pkgrel=1
+pkgrel=2
 pkgdesc="DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge)"
 arch=('any')
 url="https://github.com/fildunsky/linux-surface-pro8-cameras"
@@ -27,14 +27,35 @@ package() {
   install -d "$_dest"
 
   # IPU bridge with SP8 sensor tables
-  install -d "$_dest/ipu6-surface-1.0-surface-pro8"
-  install -m 644 driver-ipu6/Makefile driver-ipu6/dkms.conf driver-ipu6/ipu-bridge.c "$_dest/ipu6-surface-1.0-surface-pro8/"
+  install -d "$_dest/ipu6-1.0"
+  install -m 644 driver-ipu6/Makefile driver-ipu6/ipu-bridge.c "$_dest/ipu6-1.0/"
+  cat << 'EOF' > "$_dest/ipu6-1.0/dkms.conf"
+PACKAGE_NAME="ipu6"
+PACKAGE_VERSION="1.0"
+BUILT_MODULE_NAME[0]="ipu-bridge"
+DEST_MODULE_LOCATION[0]="/updates"
+AUTOINSTALL="yes"
+EOF
 
   # Front camera (OV5693 binned 2x2 mode)
-  install -d "$_dest/ov5693-1.1-surface-ipu6"
-  install -m 644 driver-ov5693/Makefile driver-ov5693/dkms.conf driver-ov5693/ov5693.c "$_dest/ov5693-1.1-surface-ipu6/"
+  install -d "$_dest/ov5693-1.1"
+  install -m 644 driver-ov5693/Makefile driver-ov5693/ov5693.c "$_dest/ov5693-1.1/"
+  cat << 'EOF' > "$_dest/ov5693-1.1/dkms.conf"
+PACKAGE_NAME="ov5693"
+PACKAGE_VERSION="1.1"
+BUILT_MODULE_NAME[0]="ov5693"
+DEST_MODULE_LOCATION[0]="/updates"
+AUTOINSTALL="yes"
+EOF
 
   # Rear camera (OV13858 180deg rotation, HFLIP/VFLIP, zero BLC)
-  install -d "$_dest/ov13858-1.0-surface-pro8"
-  install -m 644 driver-ov13858/Makefile driver-ov13858/dkms.conf driver-ov13858/ov13858.c "$_dest/ov13858-1.0-surface-pro8/"
+  install -d "$_dest/ov13858-1.0"
+  install -m 644 driver-ov13858/Makefile driver-ov13858/ov13858.c "$_dest/ov13858-1.0/"
+  cat << 'EOF' > "$_dest/ov13858-1.0/dkms.conf"
+PACKAGE_NAME="ov13858"
+PACKAGE_VERSION="1.0"
+BUILT_MODULE_NAME[0]="ov13858"
+DEST_MODULE_LOCATION[0]="/updates"
+AUTOINSTALL="yes"
+EOF
 }
