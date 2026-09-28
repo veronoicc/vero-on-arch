@@ -103,12 +103,20 @@ for pkgdir in "$REPO_ROOT"/*/; do
     rm -f *.pkg.tar.zst src pkg -rf
 
     BUILD_SUCCESS=0
+    # Install packages built in earlier steps of this run so intra-repo dependencies resolve
+    if compgen -G "$DIST_DIR/*.pkg.tar.zst" > /dev/null; then
+        sudo pacman -U --noconfirm --needed "$DIST_DIR"/*.pkg.tar.zst 2>/dev/null || true
+    fi
+
     echo "Building with makepkg..."
     if makepkg -s --noconfirm; then
         BUILD_SUCCESS=1
+    elif makepkg -d --noconfirm; then
+        echo "makepkg -s failed (likely intra-repo runtime dependencies), built with makepkg -d."
+        BUILD_SUCCESS=1
     elif command -v yay >/dev/null 2>&1; then
         echo "makepkg failed or needs AUR dependencies, retrying with yay..."
-        if yay -B . --noconfirm --nodiffmenu --nocleanmenu; then
+        if yay -B . --noconfirm; then
             BUILD_SUCCESS=1
         fi
     fi
