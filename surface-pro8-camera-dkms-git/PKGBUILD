@@ -3,8 +3,8 @@
 pkgname=surface-pro8-camera-dkms-git
 _pkgname=surface-pro8-camera-dkms
 pkgver=r29.b0a9b40
-pkgrel=3
-pkgdesc="DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge, vd55g)"
+pkgrel=4
+pkgdesc="DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge, vd55g, int3472)"
 arch=('any')
 url="https://github.com/fildunsky/linux-surface-pro8-cameras"
 license=('GPL-2.0-only')
@@ -16,10 +16,22 @@ source=(
   "linux-surface-pro8-cameras::git+https://github.com/fildunsky/linux-surface-pro8-cameras.git#branch=master"
   "vd55g.c::https://raw.githubusercontent.com/petm5/linux-surface-kernel/v6.18-surface-devel-vd55g0/drivers/media/i2c/vd55g.c"
   "vd55g-fw.h::https://raw.githubusercontent.com/petm5/linux-surface-kernel/v6.18-surface-devel-vd55g0/drivers/media/i2c/vd55g-fw.h"
+  "int3472-Makefile"
+  "int3472-clk_and_regulator.c"
+  "int3472-discrete.c"
+  "int3472-discrete_quirks.c"
+  "int3472-dkms.conf"
+  "int3472-led.c"
 )
 sha256sums=('SKIP'
             'ada12396b17d3610cbc17256c578ab31007dba22af3ad5b41ac470b69656eaac'
-            '775a428cc51c0b1914cacbee29489e1be7374e05972a5ac24f9ef32bf2bf3ce1')
+            '775a428cc51c0b1914cacbee29489e1be7374e05972a5ac24f9ef32bf2bf3ce1'
+            'b3e2da697408abb3397aa814eaa61dbafdd898f7dba712299e25fb2a1e9ee7bf'
+            '288ad7fe32a0a69f596d47d657d515f877b93da61dae8d1bae700bf920f97533'
+            '7f7e6bb8c3cb543f85b64cf40190ba8800866a14ab4ffcf695aa50cfb4432e04'
+            '7dbcf534946cd836ddcfb0ecb780ab3666edf5caf0755cd59ae7d9eefe51fd6f'
+            '7731ce20620693e8b81ceff912da4dbcc17c63a99485abd8134f17f6e0bb1837'
+            '69544b97a893163309bc73c47f6afd44945346026addc1732f57758e4e80c2d3')
 
 pkgver() {
   cd "$srcdir/linux-surface-pro8-cameras"
@@ -77,4 +89,13 @@ BUILT_MODULE_NAME[0]="vd55g"
 DEST_MODULE_LOCATION[0]="/updates"
 AUTOINSTALL="yes"
 EOF
+
+  # INT3472 discrete power controller (SMO55F0 vcore/vddio/vana rails, DOVDD 0x10)
+  install -d "$_dest/int3472-1.0"
+  install -m 644 "$srcdir/int3472-Makefile" "$_dest/int3472-1.0/Makefile"
+  install -m 644 "$srcdir/int3472-clk_and_regulator.c" "$_dest/int3472-1.0/clk_and_regulator.c"
+  install -m 644 "$srcdir/int3472-discrete.c" "$_dest/int3472-1.0/discrete.c"
+  install -m 644 "$srcdir/int3472-discrete_quirks.c" "$_dest/int3472-1.0/discrete_quirks.c"
+  install -m 644 "$srcdir/int3472-dkms.conf" "$_dest/int3472-1.0/dkms.conf"
+  install -m 644 "$srcdir/int3472-led.c" "$_dest/int3472-1.0/led.c"
 }
