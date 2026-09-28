@@ -32,30 +32,54 @@ for pkgdir in "$REPO_ROOT"/*/; do
     echo "--- Processing: $pkgname_dir ---"
     cd "$pkgdir"
 
-    pkgname=""
-    pkgver=""
-    pkgrel=""
-    if pkgfile="$(basename "$(makepkg --packagelist 2>/dev/null | head -n1)" 2>/dev/null)" && [ -n "$pkgfile" ]; then
+    pkg_list=()
+    mapfile -t pkg_list < <(makepkg --packagelist 2>/dev/null || true)
+
+    current_pkg_names=()
+    all_in_db=1
+    first_pkgver=""
+    first_pkgrel=""
+
+    for pkgpath in "${pkg_list[@]}"; do
+        [ -n "$pkgpath" ] || continue
+        pkgfile="$(basename "$pkgpath")"
         if [[ "$pkgfile" =~ ^(.+)-([^-]+)-([^-]+)-([^-]+)\.pkg\.tar\.(zst|xz|gz)$ ]]; then
-            pkgname="${BASH_REMATCH[1]}"
-            pkgver="${BASH_REMATCH[2]}"
-            pkgrel="${BASH_REMATCH[3]}"
+            pname="${BASH_REMATCH[1]}"
+            pver="${BASH_REMATCH[2]}"
+            prel="${BASH_REMATCH[3]}"
+            current_pkg_names+=("$pname")
+            KNOWN_PKGS+=("$pname")
+            if [ -z "$first_pkgver" ]; then
+                first_pkgver="$pver"
+                first_pkgrel="$prel"
+            fi
+            if [ ! -f "$REPO_DB" ] || ! tar -ztf "$REPO_DB" 2>/dev/null | grep -qx "${pname}-${pver}-${prel}/"; then
+                all_in_db=0
+            fi
+        fi
+    done
+
+    # Fallback if packagelist was empty
+    if [ ${#current_pkg_names[@]} -eq 0 ]; then
+        read -r pkgname pkgver pkgrel < <(bash -c 'source ./PKGBUILD 2>/dev/null; echo "${pkgname:-} ${pkgver:-} ${pkgrel:-}"' || true)
+        current_pkg_names+=("$pkgname")
+        KNOWN_PKGS+=("$pkgname")
+        first_pkgver="$pkgver"
+        first_pkgrel="$pkgrel"
+        if [ ! -f "$REPO_DB" ] || ! tar -ztf "$REPO_DB" 2>/dev/null | grep -qx "${pkgname}-${pkgver}-${pkgrel}/"; then
+            all_in_db=0
         fi
     fi
 
-    if [ -z "$pkgname" ] || [ -z "$pkgver" ] || [ -z "$pkgrel" ]; then
-        read -r pkgname pkgver pkgrel < <(bash -c 'source ./PKGBUILD 2>/dev/null; echo "${pkgname:-} ${pkgver:-} ${pkgrel:-}"' || true)
-    fi
+    echo "Package(s): ${current_pkg_names[*]}, Version: $first_pkgver-$first_pkgrel"
 
-    echo "Package: $pkgname, Version: $pkgver-$pkgrel"
-    KNOWN_PKGS+=("$pkgname")
-    # Check if this version already exists in repo database
-    if [ -f "$REPO_DB" ] && tar -ztf "$REPO_DB" 2>/dev/null | grep -qx "${pkgname}-${pkgver}-${pkgrel}/"; then
-        echo "Package $pkgname $pkgver-$pkgrel is already in repository database. Skipping build."
+    # Check if all packages for this version already exist in repo database
+    if [ "$all_in_db" -eq 1 ] && [ -f "$REPO_DB" ]; then
+        echo "All packages for $pkgname_dir ($first_pkgver-$first_pkgrel) are already in repository database. Skipping build."
         continue
     fi
 
-    echo "Building $pkgname..."
+    echo "Building ${current_pkg_names[*]}..."
     rm -f *.pkg.tar.zst src pkg -rf
 
     BUILD_SUCCESS=0
@@ -82,7 +106,7 @@ for pkgdir in "$REPO_ROOT"/*/; do
         fi
     fi
     if [ "$BUILD_SUCCESS" -ne 1 ]; then
-        echo "Failed to build $pkgname" >&2
+        echo "Failed to build ${current_pkg_names[*]}" >&2
         exit 1
     fi
 
