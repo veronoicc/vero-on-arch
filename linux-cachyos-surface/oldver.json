@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "data": {
+    "dylandhall-repo": {
+      "version": "20260518.073738",
+      "revision": "726c092202b653d906de9268d70a323f5c3090ee",
+      "url": "https://github.com/dylandhall/linux-cachyos-surface/commit/726c092202b653d906de9268d70a323f5c3090ee",
+      "revision_creation_time": "2026-05-18T07:37:38Z"
+    },
+    "linux-surface": {
+      "version": "6.19.8-3",
+      "gitref": "refs/tags/arch-6.19.8-3",
+      "revision": "74e65b789a090033e8d6afb446333e5f2ae3fb56"
+    }
+  }
+}

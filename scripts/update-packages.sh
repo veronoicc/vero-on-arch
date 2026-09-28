@@ -52,8 +52,12 @@ for pkgdir in "$REPO_ROOT"/*/; do
         if [ -n "$diff_output" ]; then
             echo "nvchecker found updates for $pkgname_dir:"
             echo "$diff_output"
-
-            if [ "$is_vcs" -eq 1 ]; then
+            if [ -x "./update.sh" ]; then
+                echo "Running package-specific update hook for $pkgname_dir..."
+                if ./update.sh "$diff_output"; then
+                    UPDATED=1
+                fi
+            elif [ "$is_vcs" -eq 1 ]; then
                 echo "VCS package with upstream updates detected. Updating pkgver via makepkg..."
                 makepkg -od --nodeps --skipinteg 2>&1 || true
                 rm -rf src/ pkg/ *.part

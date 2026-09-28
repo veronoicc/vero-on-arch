@@ -1,0 +1,15 @@
+[__config__]
+oldver = "oldver.json"
+newver = "newver.json"
+
+[linux-surface]
+source = "git"
+git = "https://github.com/linux-surface/linux-surface.git"
+include_regex = "^arch-.*"
+from_pattern = "^arch-"
+to_pattern = ""
+
+[dylandhall-repo]
+source = "github"
+github = "dylandhall/linux-cachyos-surface"
+branch = "main"
