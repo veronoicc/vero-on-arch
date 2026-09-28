@@ -1,0 +1,18 @@
+[__config__]
+oldver = "oldver.json"
+newver = "newver.json"
+
+[equibop]
+source = "github"
+github = "Equicord/Equibop"
+branch = "main"
+
+[equicord]
+source = "github"
+github = "Equicord/Equicord"
+branch = "main"
+
+[vencord-plugins]
+source = "github"
+github = "veronoicc/vencord-plugins"
+branch = "main"

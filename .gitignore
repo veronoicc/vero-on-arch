@@ -7,3 +7,5 @@ pkg/
 *.log
 */equibop/
 */vencord-plugins/
+*/equicord/
+newver.json

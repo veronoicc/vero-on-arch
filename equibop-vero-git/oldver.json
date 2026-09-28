@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "data": {
+    "equibop": {
+      "version": "20260916.121414",
+      "revision": "83b88c5c378d17d3550f53591a75eefaa74b2822",
+      "url": "https://github.com/Equicord/Equibop/commit/83b88c5c378d17d3550f53591a75eefaa74b2822",
+      "revision_creation_time": "2026-09-16T12:14:14Z"
+    },
+    "equicord": {
+      "version": "20260926.002145",
+      "revision": "c507c762b696b90a946df57f30f63ff68da6b03f",
+      "url": "https://github.com/Equicord/Equicord/commit/c507c762b696b90a946df57f30f63ff68da6b03f",
+      "revision_creation_time": "2026-09-26T00:21:45Z"
+    },
+    "vencord-plugins": {
+      "version": "20260924.135642",
+      "revision": "df79b92e3b9f538af65b5b6a5cb6021e2cbcd520",
+      "url": "https://github.com/veronoicc/vencord-plugins/commit/df79b92e3b9f538af65b5b6a5cb6021e2cbcd520",
+      "revision_creation_time": "2026-09-24T13:56:42Z"
+    }
+  }
+}
