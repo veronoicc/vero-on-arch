@@ -19,6 +19,26 @@ BUILT_PKGS=()
 KNOWN_PKGS=()
 DB_MODIFIED=0
 
+# Configure compiler cache if ccache is available
+if command -v ccache >/dev/null 2>&1; then
+    export CCACHE_DIR="${CCACHE_DIR:-$HOME/.cache/ccache}"
+    mkdir -p "$CCACHE_DIR" "$HOME/.config/ccache"
+    if [ ! -f "$HOME/.config/ccache/ccache.conf" ]; then
+        cat << 'EOF' > "$HOME/.config/ccache/ccache.conf"
+max_size = 50G
+sloppiness = time_macros,include_file_mtime,file_macro
+hash_dir = false
+EOF
+    fi
+    if [ ! -f "$HOME/.makepkg.conf" ] && [ -f /etc/makepkg.conf ]; then
+        cp /etc/makepkg.conf "$HOME/.makepkg.conf" 2>/dev/null || true
+    fi
+    if [ -f "$HOME/.makepkg.conf" ]; then
+        sed -i 's/!ccache/ccache/' "$HOME/.makepkg.conf"
+        sed -i 's/^#*COMPRESSZST=.*/COMPRESSZST=(zstd -c -z -q -T0 -1)/' "$HOME/.makepkg.conf"
+    fi
+fi
+
 echo "=== Scanning for packages ==="
 for pkgdir in "$REPO_ROOT"/*/; do
     [ -d "$pkgdir" ] || continue
