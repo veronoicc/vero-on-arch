@@ -8,10 +8,10 @@
       "revision_creation_time": "2026-09-16T12:14:14Z"
     },
     "equicord": {
-      "version": "20260926.002145",
-      "revision": "c507c762b696b90a946df57f30f63ff68da6b03f",
-      "url": "https://github.com/Equicord/Equicord/commit/c507c762b696b90a946df57f30f63ff68da6b03f",
-      "revision_creation_time": "2026-09-26T00:21:45Z"
+      "version": "20260929.224056",
+      "revision": "ab9b98472acb281cc7ec4d2c7a612219993bb3cb",
+      "url": "https://github.com/Equicord/Equicord/commit/ab9b98472acb281cc7ec4d2c7a612219993bb3cb",
+      "revision_creation_time": "2026-09-29T22:40:56Z"
     },
     "vencord-plugins": {
       "version": "20260924.135642",
