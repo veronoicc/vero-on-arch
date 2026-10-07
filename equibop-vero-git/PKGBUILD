@@ -93,6 +93,15 @@ prepare() {
 }
 
 build() {
+  if [ -w "${XDG_CACHE_HOME:-$HOME/.cache}" ] 2>/dev/null; then
+    _cache_base="${XDG_CACHE_HOME:-$HOME/.cache}"
+  else
+    _cache_base="$srcdir/.cache"
+    export XDG_CACHE_HOME="$_cache_base"
+  fi
+  export ELECTRON_BUILDER_CACHE="$_cache_base/electron"
+  mkdir -p "$ELECTRON_BUILDER_CACHE" "$_cache_base/node-gyp"
+
   # 1. Build Equicord with custom userplugins
   cd "$srcdir/equicord"
   pnpm install --frozen-lockfile

@@ -6,6 +6,7 @@ REPO_NAME="vero-on-arch"
 ARCH="x86_64"
 DIST_DIR="$REPO_ROOT/dist"
 
+rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR"
 cd "$DIST_DIR"
 
@@ -21,6 +22,10 @@ DB_MODIFIED=0
 
 # Configure compiler cache if ccache is available
 if command -v ccache >/dev/null 2>&1; then
+    mkdir -p "$HOME/.cache" 2>/dev/null || true
+    if [ ! -w "$HOME/.cache" ] 2>/dev/null; then
+        sudo chown -R "$(id -u):$(id -g)" "$HOME/.cache" 2>/dev/null || true
+    fi
     export CCACHE_DIR="${CCACHE_DIR:-$HOME/.cache/ccache}"
     mkdir -p "$CCACHE_DIR" "$HOME/.config/ccache"
     if [ ! -f "$HOME/.config/ccache/ccache.conf" ]; then
@@ -100,7 +105,7 @@ for pkgdir in "$REPO_ROOT"/*/; do
     fi
 
     echo "Building ${current_pkg_names[*]}..."
-    rm -f *.pkg.tar.zst src pkg -rf
+    rm -rf src pkg *.pkg.tar.zst
 
     BUILD_SUCCESS=0
     # Install packages built in earlier steps of this run so intra-repo dependencies resolve
@@ -216,4 +221,6 @@ if [ "${1:-}" = "--publish" ] && command -v gh >/dev/null 2>&1; then
             echo "Successfully published ${#UPLOAD_FILES[@]} assets to release $ARCH."
         fi
     fi
+    cd "$REPO_ROOT"
+    rm -rf "$DIST_DIR"
 fi

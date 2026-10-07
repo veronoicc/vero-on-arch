@@ -25,10 +25,23 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
+      - name: Clean environment and fix permissions
+        run: |
+          sudo chown -R builder:builder "$HOME" "${GITHUB_WORKSPACE:-/home/builder/actions-runner/_work}" 2>/dev/null || true
+          mkdir -p "$HOME/.cache"
+          chmod -R u+rwX "$HOME/.cache" 2>/dev/null || true
+          rm -rf "${GITHUB_WORKSPACE:-.}/dist"
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Prepare build environment
+        run: |
+          sudo chown -R builder:builder "$HOME" "$GITHUB_WORKSPACE"
+          mkdir -p "$HOME/.cache"
+          chmod -R u+rwX "$HOME/.cache"
+          rm -rf "$GITHUB_WORKSPACE/dist"
 
       - name: Configure git
         run: |
@@ -40,3 +53,9 @@ jobs:
 
       - name: Build packages and publish repository
         run: ./scripts/build-repo.sh --publish
+      - name: Cleanup runner environment
+        if: always()
+        run: |
+          rm -rf "$GITHUB_WORKSPACE/dist"
+          find "$GITHUB_WORKSPACE" -maxdepth 2 -type d \( -name "src" -o -name "pkg" \) -exec rm -rf {} + 2>/dev/null || true
+          sudo chown -R builder:builder "$HOME" "$GITHUB_WORKSPACE" 2>/dev/null || true

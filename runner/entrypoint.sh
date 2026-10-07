@@ -36,6 +36,9 @@ if [ -n "${RUNNER_TOKEN:-}" ] && [ -n "${REPO_URL:-}" ]; then
     fi
 
     echo "Starting GitHub Actions Runner..."
+    sudo chown -R builder:builder /home/builder 2>/dev/null || true
+    mkdir -p /home/builder/.cache
+    chmod -R u+rwX /home/builder/.cache 2>/dev/null || true
     exec ./run.sh
 else
     # Fallback to executing command passed to container

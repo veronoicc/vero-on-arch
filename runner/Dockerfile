@@ -54,9 +54,9 @@ RUN useradd -m -s /bin/bash -u 1000 builder && \
     chmod 0440 /etc/sudoers.d/builder
 
 # Setup default ccache configuration for builder user
-RUN mkdir -p /home/builder/.config/ccache && \
+RUN mkdir -p /home/builder/.config/ccache /home/builder/.cache && \
     printf 'max_size = 50G\nsloppiness = time_macros,include_file_mtime,file_macro\nhash_dir = false\n' > /home/builder/.config/ccache/ccache.conf && \
-    chown -R builder:builder /home/builder/.config
+    chown -R builder:builder /home/builder/.config /home/builder/.cache
 
 # Build and install yay-bin as builder user
 USER builder
