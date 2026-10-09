@@ -2,10 +2,10 @@
   "version": 2,
   "data": {
     "equibop": {
-      "version": "20260916.121414",
-      "revision": "83b88c5c378d17d3550f53591a75eefaa74b2822",
-      "url": "https://github.com/Equicord/Equibop/commit/83b88c5c378d17d3550f53591a75eefaa74b2822",
-      "revision_creation_time": "2026-09-16T12:14:14Z"
+      "version": "20261009.125158",
+      "revision": "27219be3566589280c0c933b04753805381d3bc8",
+      "url": "https://github.com/Equicord/Equibop/commit/27219be3566589280c0c933b04753805381d3bc8",
+      "revision_creation_time": "2026-10-09T12:51:58Z"
     },
     "equicord": {
       "version": "20261008.003911",
