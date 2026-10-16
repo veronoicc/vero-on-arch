@@ -1,6 +1,6 @@
 pkgbase = surface-pro8-camera-dkms-git
 	pkgdesc = DKMS kernel drivers for Surface Pro 8 cameras (ov5693, ov13858, ipu-bridge, vd55g, int3472)
-	pkgver = r30.5617331
+	pkgver = r31.6fe8974
 	pkgrel = 1
 	url = https://github.com/fildunsky/linux-surface-pro8-cameras
 	arch = any
