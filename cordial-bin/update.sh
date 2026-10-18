@@ -35,9 +35,10 @@ while read -r name oldver arrow newver; do
         fi
 
         echo "Found asset: $asset"
+        asset_carch="${asset//x86_64/\$CARCH}"
         sed -i -E "s/^(pkgver=).*/\1${newver}/" PKGBUILD
         sed -i -E "s/^(pkgrel=).*/\11/" PKGBUILD
-        sed -i -E "s/^(_asset=).*/\1\"${asset}\"/" PKGBUILD
+        sed -i -E "s/^(_asset=).*/\1\"${asset_carch}\"/" PKGBUILD
 
         if command -v updpkgsums >/dev/null 2>&1; then
             updpkgsums

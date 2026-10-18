@@ -11,6 +11,7 @@ pkgbase = surface-pro8-cameras-git
 	depends = vd55g-firmware-git
 	depends = v4l2loopback-dkms
 	depends = libcamera
+	depends = python
 	depends = python-numpy
 	depends = v4l-utils
 	depends = gst-plugin-libcamera

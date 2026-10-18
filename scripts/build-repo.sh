@@ -43,17 +43,53 @@ EOF
         sed -i 's/^#*COMPRESSZST=.*/COMPRESSZST=(zstd -c -z -q -T0 -1)/' "$HOME/.makepkg.conf"
     fi
 fi
+if [ -n "${CI:-}" ] || sudo -n true 2>/dev/null; then
+    sudo pacman -Sy --noconfirm 2>/dev/null || true
+fi
 
 echo "=== Scanning for packages ==="
+pkg_dirs=()
 for pkgdir in "$REPO_ROOT"/*/; do
     [ -d "$pkgdir" ] || continue
     [ -f "${pkgdir}PKGBUILD" ] || continue
-
-    pkgname_dir="$(basename "$pkgdir")"
-    if [ "$pkgname_dir" = "dist" ] || [ "$pkgname_dir" = "scripts" ]; then
+    pdir="$(basename "$pkgdir")"
+    if [ "$pdir" = "dist" ] || [ "$pdir" = "scripts" ] || [ "$pdir" = "runner" ]; then
         continue
     fi
+    pkg_dirs+=("$pkgdir")
+done
 
+# Topologically sort package directories based on intra-repo dependencies
+changed=1
+passes=0
+max_passes=${#pkg_dirs[@]}
+while [ "$changed" -eq 1 ] && [ "$passes" -lt "$max_passes" ]; do
+    changed=0
+    passes=$((passes + 1))
+    for ((i=0; i<${#pkg_dirs[@]}; i++)); do
+        dir_i="${pkg_dirs[i]}"
+        deps_i="$(bash -c "source \"$dir_i/PKGBUILD\" 2>/dev/null; echo \"\${depends[*]} \${makedepends[*]}\"")"
+        for ((j=i+1; j<${#pkg_dirs[@]}; j++)); do
+            dir_j="${pkg_dirs[j]}"
+            provides_j="$(bash -c "source \"$dir_j/PKGBUILD\" 2>/dev/null; echo \"\${pkgname[*]} \${provides[*]}\"")"
+            for dep in $deps_i; do
+                dep_name="${dep%%[<>=]*}"
+                for prov in $provides_j; do
+                    prov_name="${prov%%[<>=]*}"
+                    if [ "$dep_name" = "$prov_name" ]; then
+                        tmp="${pkg_dirs[j]}"
+                        pkg_dirs=( "${pkg_dirs[@]:0:i}" "$tmp" "${pkg_dirs[@]:i:j-i}" "${pkg_dirs[@]:j+1}" )
+                        changed=1
+                        break 3
+                    fi
+                done
+            done
+        done
+    done
+done
+
+for pkgdir in "${pkg_dirs[@]}"; do
+    pkgname_dir="$(basename "$pkgdir")"
     echo "--- Processing: $pkgname_dir ---"
     cd "$pkgdir"
 
@@ -110,7 +146,7 @@ for pkgdir in "$REPO_ROOT"/*/; do
     BUILD_SUCCESS=0
     # Install packages built in earlier steps of this run so intra-repo dependencies resolve
     if compgen -G "$DIST_DIR/*.pkg.tar.zst" > /dev/null; then
-        sudo pacman -U --noconfirm --needed "$DIST_DIR"/*.pkg.tar.zst 2>/dev/null || true
+        sudo pacman -U --noconfirm --needed -dd "$DIST_DIR"/*.pkg.tar.zst 2>/dev/null || true
     fi
 
     echo "Building with makepkg..."

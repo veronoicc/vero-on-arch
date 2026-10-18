@@ -13,6 +13,7 @@ depends=(
   'vd55g-firmware-git'
   'v4l2loopback-dkms'
   'libcamera'
+  'python'
   'python-numpy'
   'v4l-utils'
   'gst-plugin-libcamera'
@@ -77,4 +78,7 @@ package() {
   # 5. Install v4l2loopback modprobe configuration
   install -d "${pkgdir}/usr/lib/modprobe.d"
   install -m 644 "$srcdir/v4l2loopback-surface.conf" "${pkgdir}/usr/lib/modprobe.d/v4l2loopback-surface.conf"
+
+  # 6. Install license
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

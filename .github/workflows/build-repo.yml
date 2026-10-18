@@ -42,7 +42,7 @@ jobs:
           mkdir -p "$HOME/.cache"
           chmod -R u+rwX "$HOME/.cache"
           rm -rf "$GITHUB_WORKSPACE/dist"
-
+          sudo pacman -Sy --noconfirm --needed noto-fonts
       - name: Configure git
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"

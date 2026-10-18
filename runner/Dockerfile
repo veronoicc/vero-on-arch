@@ -41,7 +41,8 @@ RUN sed -i 's/^#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf 
         pnpm \
         bun \
         nodejs \
-        npm && \
+        npm \
+        noto-fonts && \
     pacman -Scc --noconfirm
 
 # Enable ccache in makepkg and optimize compression
