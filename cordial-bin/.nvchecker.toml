@@ -1,0 +1,9 @@
+[__config__]
+oldver = "oldver.json"
+newver = "newver.json"
+
+[cordial-bin]
+source = "github"
+github = "luohoa97/cordial"
+use_latest_release = true
+prefix = "v"
