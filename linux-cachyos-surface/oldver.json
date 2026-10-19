@@ -8,9 +8,9 @@
       "revision_creation_time": "2026-05-18T07:37:38Z"
     },
     "linux-surface": {
-      "version": "6.19.8-3",
-      "gitref": "refs/tags/arch-6.19.8-3",
-      "revision": "74e65b789a090033e8d6afb446333e5f2ae3fb56"
+      "version": "7.2.11-1",
+      "gitref": "refs/tags/arch-7.2.11-1",
+      "revision": "8f904c69415bd05e1c12c77e07c06d65040d3727"
     }
   }
 }

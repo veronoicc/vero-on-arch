@@ -167,8 +167,8 @@ fi
 pkgbase="linux-$_pkgsuffix"
 
 pkgbase="$pkgbase"
-_major=6.19
-_minor=8
+_major=7.2
+_minor=11
 #_minorc=$((_minor+1))
 #_rcver=rc8
 pkgver=${_major}.${_minor}
@@ -206,7 +206,7 @@ _surface_ver="${pkgver}"
 
 # Upstream linux-surface packaging revision. Tracks the trailing suffix on
 # upstream tags like `arch-6.19.8-3` (https://github.com/linux-surface/linux-surface/tags)
-_surface_rel=3
+_surface_rel=1
 _surface_ref="arch-${_surface_ver}-${_surface_rel}"
 arch=('x86_64')
 url="https://github.com/jonpetersathan/linux-cachyos-surface"
