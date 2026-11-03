@@ -2,7 +2,7 @@
 
 pkgname=oh-my-pi-gui-bin
 pkgver=0.9.35
-pkgrel=1
+pkgrel=2
 pkgdesc="Desktop GUI for the omp coding agent (official prebuilt release)"
 arch=('x86_64')
 url="https://github.com/nornzach/oh-my-pi-gui"
@@ -26,11 +26,15 @@ options=('!strip' '!debug')
 source=(
   "${pkgname}-${pkgver}.deb::https://github.com/nornzach/oh-my-pi-gui/releases/download/v${pkgver}/omp_${pkgver}_amd64.deb"
   "omp-gui-bin.sh"
+  "omp-sidecar.sh"
+  "oh-my-pi-gui.desktop"
   "LICENSE-${pkgver}::https://raw.githubusercontent.com/nornzach/oh-my-pi-gui/v${pkgver}/LICENSE"
 )
 sha256sums=(
   '550b0185235f2ea73e720f3d069decacbafbdc959b86ac286e95fb7242851614'
-  'e9b3427216270e08a66e884aa6bd56a5eb08bec8224ab7accd72cc9606f205a6'
+  '28e886d9aec25ad00abda8e7df2c0ec001366e59e2f39b2c8c1507c8d0489f00'
+  '4ea4372048009a5f9d3c753d88442432fc0af294df4bcaf4ee555c2b3a063928'
+  '3d0e2464deb40a7b4c773556089fabae40e5a9058198ae10acce7aaa4d6cc70e'
   '5d188bc40dacd2795be7be869092446e020866d6f897a2c7961aaa8fa179d473'
 )
 
@@ -38,21 +42,17 @@ package() {
   # Extract debian data archive
   ar p "${srcdir}/${pkgname}-${pkgver}.deb" data.tar.xz | tar -Jxvf - -C "${pkgdir}"
 
-  # Remove bundled sidecar and symlink to system omp
+  # Replace bundled sidecar with filtering wrapper pointing to system omp
   rm -f "${pkgdir}/opt/omp/resources/omp"
-  ln -sf /usr/bin/omp "${pkgdir}/opt/omp/resources/omp"
+  install -Dm755 "${srcdir}/omp-sidecar.sh" "${pkgdir}/opt/omp/resources/omp"
 
   # Install binary wrapper launcher and compatibility symlink
   install -Dm755 "${srcdir}/omp-gui-bin.sh" "${pkgdir}/usr/bin/omp-gui"
   ln -sf omp-gui "${pkgdir}/usr/bin/oh-my-pi-gui"
 
-  # Desktop file and search enhancements
-  sed -i 's|^Exec=.*|Exec=omp-gui %U|' "${pkgdir}/usr/share/applications/omp-gui.desktop"
-  if ! grep -q '^Keywords=' "${pkgdir}/usr/share/applications/omp-gui.desktop"; then
-    echo "GenericName=AI Coding Agent GUI" >> "${pkgdir}/usr/share/applications/omp-gui.desktop"
-    echo "Keywords=omp;oh-my-pi;gui;agent;ai;" >> "${pkgdir}/usr/share/applications/omp-gui.desktop"
-  fi
-  ln -sf omp-gui.desktop "${pkgdir}/usr/share/applications/oh-my-pi-gui.desktop"
+  # Replace default desktop file with single properly-named Oh-My-PI desktop entry
+  rm -f "${pkgdir}/usr/share/applications/omp-gui.desktop"
+  install -Dm644 "${srcdir}/oh-my-pi-gui.desktop" "${pkgdir}/usr/share/applications/oh-my-pi-gui.desktop"
 
   # Fix sandbox permissions
   chmod 4755 "${pkgdir}/opt/omp/chrome-sandbox" 2>/dev/null || chmod 0755 "${pkgdir}/opt/omp/chrome-sandbox"

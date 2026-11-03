@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Oh-My-PI
+GenericName=AI Coding Agent GUI
+Comment=Desktop GUI for the omp coding agent
+Exec=omp-gui %U
+Icon=omp-gui
+Terminal=false
+Type=Application
+StartupWMClass=omp-gui
+Categories=Development;IDE;
+MimeType=x-scheme-handler/omp;
+Keywords=omp;oh-my-pi;gui;agent;ai;

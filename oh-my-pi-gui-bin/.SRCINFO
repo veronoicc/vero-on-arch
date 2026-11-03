@@ -1,7 +1,7 @@
 pkgbase = oh-my-pi-gui-bin
 	pkgdesc = Desktop GUI for the omp coding agent (official prebuilt release)
 	pkgver = 0.9.35
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/nornzach/oh-my-pi-gui
 	arch = x86_64
 	license = MIT
@@ -22,9 +22,13 @@ pkgbase = oh-my-pi-gui-bin
 	options = !debug
 	source = oh-my-pi-gui-bin-0.9.35.deb::https://github.com/nornzach/oh-my-pi-gui/releases/download/v0.9.35/omp_0.9.35_amd64.deb
 	source = omp-gui-bin.sh
+	source = omp-sidecar.sh
+	source = oh-my-pi-gui.desktop
 	source = LICENSE-0.9.35::https://raw.githubusercontent.com/nornzach/oh-my-pi-gui/v0.9.35/LICENSE
 	sha256sums = 550b0185235f2ea73e720f3d069decacbafbdc959b86ac286e95fb7242851614
-	sha256sums = e9b3427216270e08a66e884aa6bd56a5eb08bec8224ab7accd72cc9606f205a6
+	sha256sums = 28e886d9aec25ad00abda8e7df2c0ec001366e59e2f39b2c8c1507c8d0489f00
+	sha256sums = 4ea4372048009a5f9d3c753d88442432fc0af294df4bcaf4ee555c2b3a063928
+	sha256sums = 3d0e2464deb40a7b4c773556089fabae40e5a9058198ae10acce7aaa4d6cc70e
 	sha256sums = 5d188bc40dacd2795be7be869092446e020866d6f897a2c7961aaa8fa179d473
 
 pkgname = oh-my-pi-gui-bin

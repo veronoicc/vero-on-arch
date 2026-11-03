@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=omp
+Name=Oh-My-PI
 GenericName=AI Coding Agent GUI
 Comment=Desktop GUI for the omp coding agent
 Exec=omp-gui %U
