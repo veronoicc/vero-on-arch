@@ -11,25 +11,25 @@ while read -r name oldver arrow newver; do
         new_major="${BASH_REMATCH[1]}"
         new_minor="${BASH_REMATCH[2]:-0}"
         new_surface_rel="${BASH_REMATCH[3]}"
-        echo "Updating linux-cachyos-surface: major=$new_major, minor=$new_minor, surface_rel=$new_surface_rel"
-        sed -i -E "s/^(_major=).*/\1${new_major}/" PKGBUILD
-        sed -i -E "s/^(_minor=).*/\1${new_minor}/" PKGBUILD
-        sed -i -E "s/^(_surface_rel=).*/\1${new_surface_rel}/" PKGBUILD
-        sed -i -E "s/^(pkgrel=).*/\11/" PKGBUILD
-
         # Check if CachyOS has a matching release tag for this kernel version
         tagrel=$(git ls-remote --tags https://github.com/CachyOS/linux.git "refs/tags/cachyos-${new_major}.${new_minor}-*" 2>/dev/null \
             | awk '{print $2}' | sed 's@refs/tags/cachyos-@@; s/\^.*//' \
             | sort -uV | tail -n1 | sed -E 's/.*-([0-9]+)$/\1/' || true)
         if [ -n "$tagrel" ]; then
-            echo "Found CachyOS release tagrel: $tagrel"
+            echo "Updating linux-cachyos-surface: major=$new_major, minor=$new_minor, surface_rel=$new_surface_rel, tagrel=$tagrel"
+            sed -i -E "s/^(_major=).*/\1${new_major}/" PKGBUILD
+            sed -i -E "s/^(_minor=).*/\1${new_minor}/" PKGBUILD
+            sed -i -E "s/^(_surface_rel=).*/\1${new_surface_rel}/" PKGBUILD
             sed -i -E "s/^(_tagrel=).*/\1${tagrel}/" PKGBUILD
-        fi
+            sed -i -E "s/^(pkgrel=).*/\11/" PKGBUILD
 
-        if command -v nvtake >/dev/null 2>&1; then
-            nvtake -c .nvchecker.toml "$name" || true
+            if command -v nvtake >/dev/null 2>&1; then
+                nvtake -c .nvchecker.toml "$name" || true
+            fi
+            UPDATED=1
+        else
+            echo "No matching CachyOS release found for kernel ${new_major}.${new_minor}, skipping update."
         fi
-        UPDATED=1
 
     elif [ "$name" = "dylandhall-repo" ]; then
         echo "Upstream dylandhall repo updated, syncing configs..."

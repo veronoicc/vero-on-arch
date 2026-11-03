@@ -1,6 +1,6 @@
 pkgbase = linux-cachyos-surface
 	pkgdesc = Linux CachyOS kernel with linux-surface patches
-	pkgver = 7.2.14
+	pkgver = 7.2.11
 	pkgrel = 1
 	url = https://github.com/jonpetersathan/linux-cachyos-surface
 	arch = x86_64
@@ -25,9 +25,9 @@ pkgbase = linux-cachyos-surface
 	options = !strip
 	options = !debug
 	options = !lto
-	source = https://github.com/CachyOS/linux/releases/download/cachyos-7.2.14-1/cachyos-7.2.14-1.tar.gz
+	source = https://github.com/CachyOS/linux/releases/download/cachyos-7.2.11-1/cachyos-7.2.11-1.tar.gz
 	source = config
-	source = https://raw.githubusercontent.com/linux-surface/linux-surface/arch-7.2.14-1/configs/surface-7.2.config
+	source = https://raw.githubusercontent.com/linux-surface/linux-surface/arch-7.2.11-1/configs/surface-7.2.config
 	source = linux-surface::git+https://github.com/linux-surface/linux-surface.git
 	source = https://raw.githubusercontent.com/cachyos/kernel-patches/master/7.2/misc/dkms-clang.patch
 	b2sums = SKIP
@@ -52,7 +52,7 @@ pkgname = linux-cachyos-surface
 	provides = NTSYNC-MODULE
 	provides = VHBA-MODULE
 	provides = ADIOS-MODULE
-	provides = linux-cachyos-lto=7.2.14-1
+	provides = linux-cachyos-lto=7.2.11-1
 	replaces = linux-cachyos-lto
 
 pkgname = linux-cachyos-surface-headers
@@ -62,5 +62,5 @@ pkgname = linux-cachyos-surface-headers
 	depends = clang
 	depends = llvm
 	depends = lld
-	provides = linux-cachyos-lto-headers=7.2.14-1
+	provides = linux-cachyos-lto-headers=7.2.11-1
 	replaces = linux-cachyos-lto-headers
