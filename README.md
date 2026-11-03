@@ -23,7 +23,6 @@ sudo pacman -Sy
 | Package | Description |
 |---|---|
 | `cordial-bin` | Roblox's official Android build natively on Linux |
-| `equibop-vero-git` | Custom Discord desktop app with Equicord git and userplugins |
 | `linux-cachyos-surface` | CachyOS Linux kernel with Microsoft Surface patches |
 | `oh-my-pi-gui` | Desktop GUI for the omp coding agent (source build) |
 | `oh-my-pi-gui-bin` | Desktop GUI for the omp coding agent (official prebuilt release) |
