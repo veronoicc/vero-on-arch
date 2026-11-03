@@ -1,6 +1,4 @@
 #!/usr/bin/env sh
-export OMP_BUNDLED_OMP="${OMP_BUNDLED_OMP:-/usr/lib/oh-my-pi-gui/resources/omp}"
-
 # Find electron binary
 if [ -n "$ELECTRON_PATH" ] && command -v "$ELECTRON_PATH" >/dev/null 2>&1; then
     _ELECTRON="$ELECTRON_PATH"

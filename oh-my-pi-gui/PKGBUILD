@@ -2,14 +2,13 @@
 
 pkgname=oh-my-pi-gui
 pkgver=0.9.35
-pkgrel=2
-pkgdesc="Desktop GUI for the omp coding agent"
+pkgrel=3
+pkgdesc="Desktop GUI for the omp coding agent (source build with fork runtime)"
 arch=('x86_64')
 url="https://github.com/nornzach/oh-my-pi-gui"
 license=('MIT')
 depends=(
   'electron'
-  'oh-my-pi'
 )
 makedepends=(
   'bun'
@@ -22,16 +21,23 @@ provides=("oh-my-pi-gui=$pkgver")
 conflicts=('oh-my-pi-gui-bin')
 source=(
   "${pkgname}-${pkgver}.tar.gz::https://github.com/nornzach/oh-my-pi-gui/archive/refs/tags/v${pkgver}.tar.gz"
+  "${pkgname}-sidecar-${pkgver}.deb::https://github.com/nornzach/oh-my-pi-gui/releases/download/v${pkgver}/omp_${pkgver}_amd64.deb"
   "omp-gui.sh"
-  "omp-sidecar.sh"
   "oh-my-pi-gui.desktop"
 )
 sha256sums=(
   '1be200fe6391f48a12a64845e8df9fe8db01781244f40cfcf6fd9a68f9009ea6'
-  '9e987af92f1b4cbfe019a3a6e03c9c78379f6ac2c9c214e6beea9cfb457c935e'
-  '4ea4372048009a5f9d3c753d88442432fc0af294df4bcaf4ee555c2b3a063928'
+  '550b0185235f2ea73e720f3d069decacbafbdc959b86ac286e95fb7242851614'
+  'f55e55897a52ccce72729d9b8e296d46975b129457e0ae40288250957b5d6d25'
   '3d0e2464deb40a7b4c773556089fabae40e5a9058198ae10acce7aaa4d6cc70e'
 )
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  mkdir -p resources
+  ar p "${srcdir}/${pkgname}-sidecar-${pkgver}.deb" data.tar.xz | tar -Jxvf - -O ./opt/omp/resources/omp > resources/omp
+  chmod +x resources/omp
+}
 
 build() {
   cd "${pkgname}-${pkgver}"
@@ -54,8 +60,8 @@ package() {
   install -dm755 "${pkgdir}/usr/lib/${pkgname}/resources"
   install -Dm644 resources/icon.png "${pkgdir}/usr/lib/${pkgname}/resources/icon.png"
 
-  # Install filtering sidecar wrapper pointing to system omp
-  install -Dm755 "${srcdir}/omp-sidecar.sh" "${pkgdir}/usr/lib/${pkgname}/resources/omp"
+  # Install bundled fork sidecar
+  install -Dm755 resources/omp "${pkgdir}/usr/lib/${pkgname}/resources/omp"
 
   # Launcher binary and alias
   install -Dm755 "${srcdir}/omp-gui.sh" "${pkgdir}/usr/bin/omp-gui"
