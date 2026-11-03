@@ -1,0 +1,22 @@
+pkgbase = oh-my-pi-gui
+	pkgdesc = Desktop GUI for the omp coding agent
+	pkgver = 0.9.35
+	pkgrel = 1
+	url = https://github.com/nornzach/oh-my-pi-gui
+	arch = x86_64
+	license = MIT
+	makedepends = bun
+	depends = electron
+	depends = oh-my-pi
+	optdepends = libnotify: desktop notifications
+	optdepends = xdg-utils: opening links in external browser
+	provides = oh-my-pi-gui=0.9.35
+	conflicts = oh-my-pi-gui-bin
+	source = oh-my-pi-gui-0.9.35.tar.gz::https://github.com/nornzach/oh-my-pi-gui/archive/refs/tags/v0.9.35.tar.gz
+	source = omp-gui.sh
+	source = omp-gui.desktop
+	sha256sums = 1be200fe6391f48a12a64845e8df9fe8db01781244f40cfcf6fd9a68f9009ea6
+	sha256sums = 4e66699e6c65e913091f1d0903628c56a0e705761e44a99fdc29c855017e427a
+	sha256sums = 198bd4406032bde86afe0c9fbcd0882ed5d22e69858d730887d1809771c767c4
+
+pkgname = oh-my-pi-gui

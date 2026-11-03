@@ -1,0 +1,9 @@
+[__config__]
+oldver = "oldver.json"
+newver = "newver.json"
+
+[oh-my-pi-gui-bin]
+source = "github"
+github = "nornzach/oh-my-pi-gui"
+use_latest_release = true
+prefix = "v"

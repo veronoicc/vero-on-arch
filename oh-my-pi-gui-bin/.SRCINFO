@@ -1,0 +1,30 @@
+pkgbase = oh-my-pi-gui-bin
+	pkgdesc = Desktop GUI for the omp coding agent (official prebuilt release)
+	pkgver = 0.9.35
+	pkgrel = 1
+	url = https://github.com/nornzach/oh-my-pi-gui
+	arch = x86_64
+	license = MIT
+	depends = alsa-lib
+	depends = at-spi2-core
+	depends = gtk3
+	depends = hicolor-icon-theme
+	depends = libnotify
+	depends = libsecret
+	depends = libxss
+	depends = libxtst
+	depends = nss
+	depends = oh-my-pi
+	depends = xdg-utils
+	provides = oh-my-pi-gui=0.9.35
+	conflicts = oh-my-pi-gui
+	options = !strip
+	options = !debug
+	source = oh-my-pi-gui-bin-0.9.35.deb::https://github.com/nornzach/oh-my-pi-gui/releases/download/v0.9.35/omp_0.9.35_amd64.deb
+	source = omp-gui-bin.sh
+	source = LICENSE-0.9.35::https://raw.githubusercontent.com/nornzach/oh-my-pi-gui/v0.9.35/LICENSE
+	sha256sums = 550b0185235f2ea73e720f3d069decacbafbdc959b86ac286e95fb7242851614
+	sha256sums = e9b3427216270e08a66e884aa6bd56a5eb08bec8224ab7accd72cc9606f205a6
+	sha256sums = 5d188bc40dacd2795be7be869092446e020866d6f897a2c7961aaa8fa179d473
+
+pkgname = oh-my-pi-gui-bin

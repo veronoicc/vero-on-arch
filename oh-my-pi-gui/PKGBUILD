@@ -1,0 +1,79 @@
+# Maintainer: veronoicc
+
+pkgname=oh-my-pi-gui
+pkgver=0.9.35
+pkgrel=1
+pkgdesc="Desktop GUI for the omp coding agent"
+arch=('x86_64')
+url="https://github.com/nornzach/oh-my-pi-gui"
+license=('MIT')
+depends=(
+  'electron'
+  'oh-my-pi'
+)
+makedepends=(
+  'bun'
+)
+optdepends=(
+  'libnotify: desktop notifications'
+  'xdg-utils: opening links in external browser'
+)
+provides=("oh-my-pi-gui=$pkgver")
+conflicts=('oh-my-pi-gui-bin')
+source=(
+  "${pkgname}-${pkgver}.tar.gz::https://github.com/nornzach/oh-my-pi-gui/archive/refs/tags/v${pkgver}.tar.gz"
+  "omp-gui.sh"
+  "omp-gui.desktop"
+)
+sha256sums=(
+  '1be200fe6391f48a12a64845e8df9fe8db01781244f40cfcf6fd9a68f9009ea6'
+  '4e66699e6c65e913091f1d0903628c56a0e705761e44a99fdc29c855017e427a'
+  '198bd4406032bde86afe0c9fbcd0882ed5d22e69858d730887d1809771c767c4'
+)
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  export HOME="${srcdir}/.home"
+  export BUN_INSTALL="${HOME}/.bun"
+  mkdir -p "${HOME}"
+
+  bun install --frozen-lockfile
+  bun run build
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+
+  install -dm755 "${pkgdir}/usr/lib/${pkgname}"
+  cp -a out "${pkgdir}/usr/lib/${pkgname}/"
+  cp -a package.json "${pkgdir}/usr/lib/${pkgname}/"
+
+  # Bundle icon for app.dock and window identity
+  install -dm755 "${pkgdir}/usr/lib/${pkgname}/resources"
+  install -Dm644 resources/icon.png "${pkgdir}/usr/lib/${pkgname}/resources/icon.png"
+
+  # Symlink to system omp
+  ln -sf /usr/bin/omp "${pkgdir}/usr/lib/${pkgname}/resources/omp"
+
+  # Launcher binary and alias
+  install -Dm755 "${srcdir}/omp-gui.sh" "${pkgdir}/usr/bin/omp-gui"
+  ln -sf omp-gui "${pkgdir}/usr/bin/${pkgname}"
+
+  # Desktop entries
+  install -Dm644 "${srcdir}/omp-gui.desktop" "${pkgdir}/usr/share/applications/omp-gui.desktop"
+  ln -sf omp-gui.desktop "${pkgdir}/usr/share/applications/${pkgname}.desktop"
+
+  # Icons
+  for size in 16 32 48 64 128 256 512 1024; do
+    if [ -f "resources/icons/${size}x${size}.png" ]; then
+      install -Dm644 "resources/icons/${size}x${size}.png" \
+        "${pkgdir}/usr/share/icons/hicolor/${size}x${size}/apps/omp-gui.png"
+    fi
+  done
+  if [ -f "resources/icon.svg" ]; then
+    install -Dm644 resources/icon.svg "${pkgdir}/usr/share/icons/hicolor/scalable/apps/omp-gui.svg"
+  fi
+
+  # License
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
