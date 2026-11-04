@@ -1,8 +1,8 @@
 # Maintainer: veronoicc
 
 pkgname=oh-my-pi-gui-bin
-pkgver=0.9.35
-pkgrel=3
+pkgver=0.9.36
+pkgrel=1
 pkgdesc="Desktop GUI for the omp coding agent (official prebuilt release with bundled fork runtime)"
 arch=('x86_64')
 url="https://github.com/nornzach/oh-my-pi-gui"
@@ -28,12 +28,10 @@ source=(
   "oh-my-pi-gui.desktop"
   "LICENSE-${pkgver}::https://raw.githubusercontent.com/nornzach/oh-my-pi-gui/v${pkgver}/LICENSE"
 )
-sha256sums=(
-  '550b0185235f2ea73e720f3d069decacbafbdc959b86ac286e95fb7242851614'
-  'dac77db8f8846304394957e225b82b6540ddb7d985471e6a8dac77f580c79cb6'
-  '3d0e2464deb40a7b4c773556089fabae40e5a9058198ae10acce7aaa4d6cc70e'
-  '5d188bc40dacd2795be7be869092446e020866d6f897a2c7961aaa8fa179d473'
-)
+sha256sums=('ce8cb316a767557a7eb34199e4869e0703db8f2f4d0672b90031660307fd1c4c'
+            'dac77db8f8846304394957e225b82b6540ddb7d985471e6a8dac77f580c79cb6'
+            '3d0e2464deb40a7b4c773556089fabae40e5a9058198ae10acce7aaa4d6cc70e'
+            '5d188bc40dacd2795be7be869092446e020866d6f897a2c7961aaa8fa179d473')
 
 package() {
   # Extract debian data archive (preserves bundled fork omp runtime in /opt/omp/resources/omp)
