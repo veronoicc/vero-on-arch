@@ -1,7 +1,7 @@
 # Maintainer: veronoicc
 
 pkgname=oh-my-pi-gui
-pkgver=0.9.37
+pkgver=0.9.38
 pkgrel=1
 pkgdesc="Desktop GUI for the omp coding agent (source build with fork runtime)"
 arch=('x86_64')
@@ -25,8 +25,8 @@ source=(
   "omp-gui.sh"
   "oh-my-pi-gui.desktop"
 )
-sha256sums=('37f93d5a88fe987217e2dd2298a8f80eb688d165cf0dbd0b8d1ea34ff4d0df53'
-            'b018bf91933f8e90e200fc7ae812b799f8d808b31cf474897345c7358ec41713'
+sha256sums=('625e5aa0d8b391585915489dd9148e3d3b65884073fbb9dd5b36cde15d0442fb'
+            'd9b3b6bcdcfd1a92967aa6c82b227bd6f001cd56b0bd09d56fae54f028f9d2d8'
             'f55e55897a52ccce72729d9b8e296d46975b129457e0ae40288250957b5d6d25'
             '3d0e2464deb40a7b4c773556089fabae40e5a9058198ae10acce7aaa4d6cc70e')
 
