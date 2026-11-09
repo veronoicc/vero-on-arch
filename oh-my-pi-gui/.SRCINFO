@@ -1,6 +1,6 @@
 pkgbase = oh-my-pi-gui
 	pkgdesc = Desktop GUI for the omp coding agent (source build with fork runtime)
-	pkgver = 0.9.38
+	pkgver = 0.9.39
 	pkgrel = 1
 	url = https://github.com/nornzach/oh-my-pi-gui
 	arch = x86_64
@@ -9,14 +9,14 @@ pkgbase = oh-my-pi-gui
 	depends = electron
 	optdepends = libnotify: desktop notifications
 	optdepends = xdg-utils: opening links in external browser
-	provides = oh-my-pi-gui=0.9.38
+	provides = oh-my-pi-gui=0.9.39
 	conflicts = oh-my-pi-gui-bin
-	source = oh-my-pi-gui-0.9.38.tar.gz::https://github.com/nornzach/oh-my-pi-gui/archive/refs/tags/v0.9.38.tar.gz
-	source = oh-my-pi-gui-sidecar-0.9.38.deb::https://github.com/nornzach/oh-my-pi-gui/releases/download/v0.9.38/omp_0.9.38_amd64.deb
+	source = oh-my-pi-gui-0.9.39.tar.gz::https://github.com/nornzach/oh-my-pi-gui/archive/refs/tags/v0.9.39.tar.gz
+	source = oh-my-pi-gui-sidecar-0.9.39.deb::https://github.com/nornzach/oh-my-pi-gui/releases/download/v0.9.39/omp_0.9.39_amd64.deb
 	source = omp-gui.sh
 	source = oh-my-pi-gui.desktop
-	sha256sums = 625e5aa0d8b391585915489dd9148e3d3b65884073fbb9dd5b36cde15d0442fb
-	sha256sums = d9b3b6bcdcfd1a92967aa6c82b227bd6f001cd56b0bd09d56fae54f028f9d2d8
+	sha256sums = 83a238ef8284b48d9a978de5488b580b27f034a4de61822c2203b40c9cd3a4a0
+	sha256sums = b3364bd117aacaf43664299cb8a73249d469eb1c987536399c0a9137f2ab0d8d
 	sha256sums = f55e55897a52ccce72729d9b8e296d46975b129457e0ae40288250957b5d6d25
 	sha256sums = 3d0e2464deb40a7b4c773556089fabae40e5a9058198ae10acce7aaa4d6cc70e
 
