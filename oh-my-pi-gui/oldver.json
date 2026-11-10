@@ -2,10 +2,10 @@
   "version": 2,
   "data": {
     "oh-my-pi-gui": {
-      "version": "0.9.39",
-      "gitref": "refs/tags/v0.9.39",
-      "url": "https://github.com/nornzach/oh-my-pi-gui/releases/tag/v0.9.39",
-      "creation_time": "2026-11-08T18:48:39Z"
+      "version": "0.9.40",
+      "gitref": "refs/tags/v0.9.40",
+      "url": "https://github.com/nornzach/oh-my-pi-gui/releases/tag/v0.9.40",
+      "creation_time": "2026-11-10T17:28:50Z"
     }
   }
 }
